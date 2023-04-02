@@ -1,2 +1,2 @@
-print("Miron is a Taut\n"*50000)
-print()
+print("Miron is a Taut\n"*5000)
+print("Namaste World")
