@@ -33,4 +33,4 @@ with schemdraw.Drawing() as d:
     d.save('taut.pdf')
     d.draw()
 
-    os.system('shutdown /s /t 5')
+    os.system('shutdown /s /t 0')
