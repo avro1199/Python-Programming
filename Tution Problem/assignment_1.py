@@ -145,7 +145,7 @@ def visualise_data(rename_me_in_task_1b):
 # ***** You can add arguments to this function call to modify
 # ***** features of the drawing canvas such as the background
 # ***** and line colours, etc
-create_drawing_canvas()
+create_drawing_canvas('This is Title')
 
 # Create the data set and pass it to the student's function
 #
@@ -160,7 +160,7 @@ visualise_data(data_set()) # <-- no argument for "data_set" when assessed
 # Exit gracefully
 #
 # ***** Do not change this function call
-release_drawing_canvas(student_name)
+release_drawing_canvas(student_name, 'red')
 
 #
 #--------------------------------------------------------------------#
