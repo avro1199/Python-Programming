@@ -127,10 +127,10 @@ if __name__ == '__main__':
     D, P = Dijkstra_shortest_path(G, 0)
     
     # note that f-strings "debugging style" require a recent version of Python
-    # print(f'Mapping of Cost:\n{D=}\n')    
+    # print(f'Mapping of Cost:\n{D=}\n')
     # print(f'Parent mapping:\n{P=}\n')
 
-    print(f'Mapping of Cost:\n{D}\n')    
+    print(f'Mapping of Cost:\n{D}\n')
     print(f'Parent mapping:\n{P}\n')
 
 
