@@ -1,1 +1,0 @@
-def draw_plane2(x=0, y=0, dir='up')
