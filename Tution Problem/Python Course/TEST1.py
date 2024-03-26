@@ -125,7 +125,7 @@ else:
 # or raw_data because they're already called in the main program
 # below.
 
-def visualise_data(hole_data):
+def visualise_data(whole_data):
 
     net_profit = 0 #for calculating overall profit
     month_count = 0 #for checking if data is missing in that case we have to estimate profit
@@ -134,29 +134,35 @@ def visualise_data(hole_data):
     pos_of_month = {'January':-360, 'February':-280, 'March':-200, 'April':-120,
                     'May':-40, 'June':40, 'July':120, 'August':200, 'September':280,
                     'October':360, 'November':440, 'December':520}
+    
+
+    print('Report found for '+str(whole_data.__len__())+' months')
 
     
     speed(0) #maximum speed
 
-    draw_plane2(-560,220,'up')
-    goto(-560,150)
+    draw_plane2(-540,200,'up')
+    goto(-540,130)
     # color('slate gray')
     write('Profit taking off',align='center', font=['Arial',12,'bold'])
-    draw_plane2(-560,70,'right')
-    goto(-560,0)
+    draw_plane2(-540,40,'right')
+    goto(-540,-30)
     # color('slate gray')
     write('Profit on ground',align='center', font=['Arial',12,'bold'])
-    draw_plane2(-560,-80,'down')
-    goto(-560,-150)
+    draw_plane2(-540,-120,'down')
+    goto(-540,-190)
     # color('slate gray')
     write('Profit nose down',align='center', font=['Arial',12,'bold'])
 
     # draw_plane2(pos_of_month['August'],0, 'right') #for checking purpose
 
-    # print(hole_data)
-    for monthly_data in hole_data:
+    #Drawing data as quickly as possible
+    tracer(False)
+
+    # print(whole_data)
+    for monthly_data in whole_data:
         # print(monthly_data)
-        month_count += 1
+        month_count += 1 # x+=2 -> x = x+2
         net_profit += monthly_data[1]
 
         if(monthly_data[1]>0):
@@ -175,15 +181,18 @@ def visualise_data(hole_data):
             draw_plane2(pos_of_month[monthly_data[0]], 80*j*dir_coeffi, dir)
 
     if(month_count < 12):
-        print("Estimated = ", net_profit)
-        goto(-540,-240)
+        print("Estimated", net_profit)
+        goto(-540,-255)
         # color('slate gray')
-        write('Estimated Profit = '+str(net_profit)+'$',align='center', font=['Arial',12,'bold'])
+        write('Estimated',align='center', font=['Arial',12,'bold'])
+        goto(-540,-280)
+        # color('slate gray')
+        write('Profit ($bn): '+str(net_profit),align='center', font=['Arial',12,'bold'])
     else:
-        print("Net Profit = ", net_profit)
-        goto(-550,-240)
+        print("Total Profit = ", net_profit)
+        goto(-540,-280)
         # color('slate gray')
-        write('Net Profit = '+str(net_profit)+'$',align='center', font=['Arial',12,'bold'])
+        write('Total Profit ($bn): '+str(net_profit),align='center', font=['Arial',12,'bold'])
 
 def draw_plane2(x=0, y=0, dir='up'):
 
@@ -400,7 +409,7 @@ create_drawing_canvas('Travel Industry Profit Turbulance',write_instructions=Fal
 # ***** work with "data_set()" as the function call,
 # ***** i.e., for any random data set that can be returned by
 # ***** the function when called with no seed
-visualise_data(data_set(66738)) # <-- no argument for "data_set" when assessed
+visualise_data(data_set()) # <-- no argument for "data_set" when assessed
 
 # Exit gracefully
 #
