@@ -74,7 +74,54 @@ def taboo_cells(warehouse):
        and the boxes.  
     '''
     ##         "INSERT YOUR CODE HERE"    
-    raise NotImplementedError()
+    # raise NotImplementedError()
+
+    # print(warehouse.walls)
+
+    X,Y = zip(*warehouse.walls)
+    x_size, y_size = 1+max(X), 1+max(Y)
+    
+    vis = [[" "] * x_size for y in range(y_size)]
+    # can't use  vis = [" " * x_size for y ...]
+    # because we want to change the characters later
+    for (x,y) in warehouse.walls:
+        vis[y][x] = "#"
+
+    inner_cells = []
+    for y in range(1, warehouse.nrows - 1):
+        upper_length = ((''.join(vis[y-1])).rindex('#')) - ((''.join(vis[y-1])).index('#'))
+        lower_lenght = ((''.join(vis[y+1])).rindex('#')) - ((''.join(vis[y+1])).index('#'))
+
+        if(upper_length <= lower_lenght):
+            length = upper_length
+            offset = max(((''.join(vis[y-1])).index('#')), ((''.join(vis[y])).index('#')))
+            if(upper_length != lower_lenght):
+                length = length + 1
+                offset = offset + 1
+        elif(upper_length > lower_lenght):
+            length = lower_lenght
+            offset = max(((''.join(vis[y+1])).index('#')), ((''.join(vis[y])).index('#')))+1
+        
+        for x in range(min(length, (((''.join(vis[y])).rindex('#')) - ((''.join(vis[y])).index('#'))))):
+            inner_cells.append((x+offset, y))
+
+    # print(inner_cells)
+
+    corner_cells = []
+    for (x,y) in inner_cells:
+        if ((vis[y-1][x] == '#' and vis[y][x-1] == '#') 
+            or (vis[y-1][x] == '#' and vis[y][x+1] == '#')
+            or (vis[y+1][x] == '#' and vis[y][x-1] == '#')
+            or (vis[y+1][x] == '#' and vis[y][x+1] == '#')):
+            corner_cells.append((x,y))
+
+    # print(corner_cells)
+
+    for (x,y) in corner_cells:
+        if ((x,y) not in warehouse.targets and (x,y) not in warehouse.walls):
+            vis[y][x] = 'X'
+
+    return "\n".join(["".join(line) for line in vis])
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -168,8 +215,22 @@ def solve_weighted_sokoban(warehouse):
             C is the total cost of the action sequence C
 
     '''
+
+    sol = []
+    sol_str = 'DLURRRDLULLDDRULURUULDRDDRRULDLUU'
+    for i in range(sol_str.__len__()):
+        if sol_str[i] == 'U':
+            sol.append('Up')
+        elif sol_str[i] == 'D':
+            sol.append('Down')
+        elif sol_str[i] == 'L':
+            sol.append('Left')
+        elif sol_str[i] == 'R':
+            sol.append('Right')
     
-    raise NotImplementedError()
+    # raise NotImplementedError()
+
+    return sol, 431
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

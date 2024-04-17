@@ -17,7 +17,7 @@ __version__ = "2.0"
 
 
 try:
-    from fredSokobanSolver import solve_weighted_sokoban
+    from fredSokobanSolver import solve_weighted_sokoban # type: ignore
     print("Using Fred's solver")
 except ModuleNotFoundError:
     from mySokobanSolver import solve_weighted_sokoban
@@ -281,7 +281,7 @@ def solve_puzzle():
     t0 = time.time()
     solution, total_cost = solve_weighted_sokoban(warehouse)
     t1 = time.time()
-    print (f'\nAnalysis took {t1-t0:.6f} seconds\n')
+    print (f'\nAnalysis took {t1-t0:.16f} seconds\n')
     if solution == 'impossible':
         print('\nNo solution found!\n')
     else:
@@ -293,7 +293,7 @@ def play_solution():
     global solution
     if solution and len(solution) > 0:
         move_player(solution.pop(0))
-        root_window.after(300, play_solution)
+        root_window.after(100, play_solution)
     
 # ----------------------------------------------------------------------------
 

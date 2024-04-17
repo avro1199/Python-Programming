@@ -125,7 +125,7 @@ else:
 # or raw_data because they're already called in the main program
 # below.
 
-def visualise_data(whole_data):
+def visualise_data(whole_data): #storing the passed dataset into whole_data variable
 
     net_profit = 0 #for calculating overall profit
     month_count = 0 #for checking if data is missing in that case we have to estimate profit
@@ -135,12 +135,13 @@ def visualise_data(whole_data):
                     'May':-40, 'June':40, 'July':120, 'August':200, 'September':280,
                     'October':360, 'November':440, 'December':520}
     
-
+    #printing number of month for which data found in the console(optional)
     print('Report found for '+str(whole_data.__len__())+' months')
 
     
     speed(0) #maximum speed
 
+    ######### Drawing three demo icon with details they represent #########
     draw_plane2(-540,200,'up')
     goto(-540,130)
     # color('slate gray')
@@ -154,20 +155,18 @@ def visualise_data(whole_data):
     # color('slate gray')
     write('Profit nose down',align='center', font=['Arial',12,'bold'])
 
-    # draw_plane2(pos_of_month['August'],0, 'right') #for checking purpose
 
     #Drawing data as quickly as possible
     tracer(False)
 
-    # print(whole_data)
+    ############ iterating through the dataset and visualising ############
     for monthly_data in whole_data:
-        # print(monthly_data)
-        month_count += 1 # x+=2 -> x = x+2
-        net_profit += monthly_data[1]
+        month_count += 1      # month_count = month_count + 1          # increasing month_count by one for each iteration
+        net_profit += monthly_data[1]  # adding profit of each month to net_profit
 
         if(monthly_data[1]>0):
-            dir = 'up'
-            dir_coeffi = 1
+            dir = 'up'           # heads up for positive profit
+            dir_coeffi = 1       # moves up for positive profit
         elif(monthly_data[1]<0):
             dir = 'down'
             dir_coeffi = -1
@@ -175,23 +174,25 @@ def visualise_data(whole_data):
             dir = 'right'
             dir_coeffi = 0
         
-        for j in range(abs(monthly_data[1])+1):
-            if(j>3):
+        for no_of_planes in range(abs(monthly_data[1])+1): # drawing planes according to the profit (atmost three)
+            if(no_of_planes>3):
                 break
-            draw_plane2(pos_of_month[monthly_data[0]], 80*j*dir_coeffi, dir)
+            draw_plane2(pos_of_month[monthly_data[0]], 80*no_of_planes*dir_coeffi, dir)
 
+    #checking wheather data is missing or not
     if(month_count < 12):
+        # printing the estimated profit in the console
         print("Estimated", net_profit)
         goto(-540,-255)
-        # color('slate gray')
+        #printing the estimated profit in the canvas
         write('Estimated',align='center', font=['Arial',12,'bold'])
         goto(-540,-280)
-        # color('slate gray')
         write('Profit ($bn): '+str(net_profit),align='center', font=['Arial',12,'bold'])
     else:
+        # printing the net profit in the console
         print("Total Profit = ", net_profit)
+        #printing the net profit in the canvas
         goto(-540,-280)
-        # color('slate gray')
         write('Total Profit ($bn): '+str(net_profit),align='center', font=['Arial',12,'bold'])
 
 def draw_plane2(x=0, y=0, dir='up'):
@@ -212,7 +213,7 @@ def draw_plane2(x=0, y=0, dir='up'):
         fillcolor(clr)
         begin_fill()
         pendown()
-        for i in range(2):
+        for line in range(2):
             forward(width)
             left(90)
             forward(length)
@@ -280,7 +281,7 @@ def draw_plane2(x=0, y=0, dir='up'):
     elif(dir=='down'):
         fillcolor('sienna2')
     begin_fill()
-    for i in range(4):
+    for line in range(4):
         forward(79)
         left(90)
     end_fill()
@@ -292,7 +293,7 @@ def draw_plane2(x=0, y=0, dir='up'):
         setheading(0)
         pensize(3)
         color('white')
-        for i in range(3):
+        for forward_movement in range(3):
             pendown()
             forward(20)
             penup()
@@ -300,7 +301,7 @@ def draw_plane2(x=0, y=0, dir='up'):
         penup()
         goto(x-36,y-33)
         setheading(0)
-        for i in range(3):
+        for forward_movement in range(3):
             pendown()
             forward(20)
             penup()
