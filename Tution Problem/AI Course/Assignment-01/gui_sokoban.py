@@ -30,7 +30,7 @@ app_root_folder = os.getcwd()
 
 # creating tkinter root/main window
 root_window = tk.Tk()
-root_window.geometry('550x180')
+root_window.geometry('580x220')
 
 # tk.Frame containing the warehouse
 frame = tk.Frame(master=root_window)
@@ -332,7 +332,7 @@ menubar = tk.Menu(root_window)
 root_window.config(menu=menubar)
   
 # Adding File Menu and commands
-file_menu = tk.Menu(menubar, tearoff = 0)
+file_menu = tk.Menu(menubar, tearoff = 0, bg='green')
 menubar.add_cascade(label ='File', menu = file_menu)
 file_menu.add_command(label ='Load warehouse', command = select_warehouse)
 file_menu.add_command(label="Restart puzzle", command=start_level)

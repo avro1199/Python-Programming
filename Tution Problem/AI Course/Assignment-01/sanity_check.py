@@ -22,7 +22,7 @@ try:
     from fredSokobanSolver import taboo_cells, solve_weighted_sokoban, check_elem_action_seq # type: ignore
     print("Using Fred's solver")
 except ModuleNotFoundError:
-    from mySokobanSolver import taboo_cells, solve_weighted_sokoban, check_elem_action_seq
+    from mySokobanSolver import taboo_cells, solve_weighted_sokoban, check_elem_action_seq, my_team
     print("Using submitted solver")
 
     
@@ -92,8 +92,7 @@ def test_solve_weighted_sokoban():
 
 if __name__ == "__main__":
     # pass    
-#    print(my_team())  # should print your team
-
+    print(my_team())  # should print your team
     test_taboo_cells() 
-    # test_check_elem_action_seq()
-    # test_solve_weighted_sokoban()
+    test_check_elem_action_seq()
+    test_solve_weighted_sokoban()
