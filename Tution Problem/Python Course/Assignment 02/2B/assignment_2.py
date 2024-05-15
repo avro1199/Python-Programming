@@ -12,8 +12,8 @@
 #  Put your student number here as an integer and your name as a
 #  character string:
 #
-student_number = None
-student_name   = None
+student_number = 420
+student_name   = 'Rj'
 #
 #  NB: Files submitted without a completed copy of this statement
 #  will not be marked.  All files submitted will be subjected to
@@ -261,7 +261,15 @@ def download(url = 'http://www.wikipedia.org/',
 main_window = Tk()
 
 # Your code goes here
-pass
+# pass
+
+def put_into_db(source, headline, time, rating):
+    db = connect('./reliability_ratings.db')
+    command = f"INSERT INTO 'ratings' ('news_source', 'headline', 'dateline', 'rating') VALUES ('{source}', '{headline}', '{time}', {rating})"
+    db.execute(command)
+    db.commit()
+
+put_into_db('Times Now', 'Who are You ?', '4:30 pm', 3)
 
 # Start the event loop to detect user inputs
 main_window.mainloop()
