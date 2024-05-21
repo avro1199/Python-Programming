@@ -194,42 +194,42 @@ def download(url = 'http://www.wikipedia.org/',
             request.add_header('User-Agent',
                                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; ' + \
                                'rv:91.0; ADSSO) Gecko/20100101 Firefox/91.0')
-            print("Warning - Request to server does not reveal client's true identity.")
-            print("          Use this option only if absolutely necessary!\n")
+            # print("Warning - Request to server does not reveal client's true identity.")
+            # print("          Use this option only if absolutely necessary!\n")
         else:
             # Behave ethically
             request = url
         web_page = urlopen(request)
     except ValueError as message: # probably a syntax error
-        print(f"\nCannot find requested document '{url}'")
-        print(f"Error message was: {message}\n")
+        # print(f"\nCannot find requested document '{url}'")
+        # print(f"Error message was: {message}\n")
         return None
     except HTTPError as message: # possibly an authorisation problem
-        print(f"\nAccess denied to document at URL '{url}'")
-        print(f"Error message was: {message}\n")
+        # print(f"\nAccess denied to document at URL '{url}'")
+        # print(f"Error message was: {message}\n")
         return None
     except URLError as message: # probably the wrong server address
-        print(f"\nCannot access web server at URL '{url}'")
-        print(f"Error message was: {message}\n")
+        # print(f"\nCannot access web server at URL '{url}'")
+        # print(f"Error message was: {message}\n")
         return None
     except Exception as message: # something entirely unexpected
-        print("\nSomething went wrong when trying to download " + \
-              f"the document at URL '{str(url)}'")
-        print(f"Error message was: {message}\n")
+        # print("\nSomething went wrong when trying to download " + \
+            #   f"the document at URL '{str(url)}'")
+        # print(f"Error message was: {message}\n")
         return None
 
     # Read the contents as a character string
     try:
         web_page_contents = web_page.read().decode(char_set)
     except UnicodeDecodeError as message:
-        print("\nUnable to decode document from URL " + \
-              f"'{url}' as '{char_set}' characters")
-        print(f"Error message was: {message}\n")
+        # print("\nUnable to decode document from URL " + \
+            #   f"'{url}' as '{char_set}' characters")
+        # print(f"Error message was: {message}\n")
         return None
     except Exception as message:
-        print("\nSomething went wrong when trying to decode " + \
-              f"the document from URL '{url}'")
-        print(f"Error message was: {message}\n")
+        # print("\nSomething went wrong when trying to decode " + \
+            #   f"the document from URL '{url}'")
+        # print(f"Error message was: {message}\n")
         return None
 
     # Optionally write the contents to a local text file
@@ -241,8 +241,9 @@ def download(url = 'http://www.wikipedia.org/',
             text_file.write(web_page_contents)
             text_file.close()
         except Exception as message:
-            print(f"\nUnable to write to file '{target_filename}'")
-            print(f"Error message was: {message}\n")
+            pass
+            # print(f"\nUnable to write to file '{target_filename}'")
+            # print(f"Error message was: {message}\n")
 
     # Return the downloaded document to the caller
     return web_page_contents
@@ -265,42 +266,79 @@ bg_color = 'gray90'
 font_face = 'cascadia'
 box_heading = ('cascadia', 16)
 
+source_name = {'https://www.abc.net.au/news/justin':'ABC News',
+           'https://www.smh.com.au/':'The Sydney Morning Herald', 
+           'https://www.bbc.com/news/world/australia':'BBC News (Australia)', 
+           'https://www.reuters.com/':'Reuters'}
+
+source_1 = 'https://www.bbc.com/news/world/australia'
+source_2 = 'https://www.abc.net.au/news/justin'
+# source_3 = 'https://www.reuters.com/' #currently not accessable
+source_3 = 'https://www.smh.com.au/'
+
 main_window.geometry('740x500')
 main_window.title("Poly Debnath's Fact Checking")
 main_window.config(background=bg_color)
 
-# all callback function
 def add2db(source, headline, time, rating):
     db = connect('./reliability_ratings.db')
     command = f"INSERT INTO 'ratings' ('news_source', 'headline', 'dateline', 'rating') VALUES ('{source}', '{headline}', '{time}', {rating})"
     db.execute(command)
     db.commit()
 
-def fnc_show_source():
+def print_noSource_condition():
     global msg
+    msg.grid_forget()
+    msg = Message(status_frame, width=360, text='Please select a source first !',
+                background=bg_color, font=(font_face, 13), fg='#dd0000')
+    msg.grid(row=0, column=0)
+
+# all callback function for widgets
+def fnc_show_source():
+    # print('The message')
+    global msg
+    src = source.get()
+    news_data = download(src)
+
+    if(news_data == None):
+        msg.grid_forget()
+        msg = Message(status_frame, width=360, text='ERROR: Cannot access the Selected Source !',
+                  background=bg_color, font=(font_face, 13), fg='#ff0000')
+        msg.grid(row=0, column=0)
+        source.set('No Source Selected')
+        return
+    
     msg.grid_forget()  # remove all past texts
-    selection = source.get()
-    # print('The message is \"', m, '\"')
-    msg = Message(status_frame, width=360, text=selection,
+    msg = Message(status_frame, width=360, text=source_name[src] + ' is selected as source !',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
 
 def fnc_show_latest():
-    global msg
-    msg.grid_forget()
     # print('Show Latest Button Pressed !')
-    msg = Message(status_frame, width=360, text='Show Latest Button Pressed !',
+    global msg
+    src = source.get()
+    if (src == 'No Source Selected'):
+        print_noSource_condition()
+        return
+        
+    msg.grid_forget()
+    msg = Message(status_frame, width=360, text='Not implemented yet !\n\n Have to extract data before further development',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
 
 def fnc_show_details():
+    # print('Show Details Button Pressed !')
+    src = source.get()
+    if (src == 'No Source Selected'):
+        print_noSource_condition()
+        return
+    
+    urldisplay(src)
     global msg
     msg.grid_forget()
-    urldisplay(source.get())
-    # print('Show Details Button Pressed !')
-    msg = Message(status_frame, width=360, text='Showing Details in Browser.',
+    msg = Message(status_frame, width=360, text='Showing Details in the Browser...',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
@@ -314,23 +352,24 @@ def fnc_show_rating(r):
 
 
 def fnc_save_rating():
-    global msg
-    msg.grid_forget()
     src = source.get()
     # print('Save Rating Button Pressed !')
-    if (src == 'No Option Selected'):
-        msg = Message(status_frame, width=360, text='Please select a source first !',
-                    background=bg_color, font=(font_face, 13))
-        msg.grid(row=0, column=0)
+    if (src == 'No Source Selected'):
+        print_noSource_condition()
         return
     
-    string = download(src)
-    msg = Message(status_frame, width=360, text=src,
-                background=bg_color, font=(font_face, 13))
+    news_src = source_name[src]
+    head_line = 'Demo Head Lines from '+ news_src
+    time_line = '(2:46:00 GMT)'
+    selected_rating = rate.get()
+
+    add2db(news_src, head_line, time_line, selected_rating)
+
+    global msg
+    msg.grid_forget()
+    msg = Message(status_frame, width=360, text='Rating '+str(selected_rating)+' is saved for "'+ head_line + '"',
+                  background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
-
-    print(findall('<h2.*</h2>', string), sep='\n')
-
 
 # Creating frames
 text_frame = Frame(master=main_window, width=400,
@@ -369,17 +408,17 @@ msg = Message(status_frame, width=360, text='Waiting for User Input . . .',
 msg.grid(row=0, column=0)
 
 # options for selecting the source
-source = StringVar(value='No Option Selected')
-Radiobutton(data_frame, background=bg_color, text=' The reuters news(brisbane)', font=(font_face, 13),
-            variable=source, value='https://www.smh.com.au/breaking-news', command=fnc_show_source).grid(
+source = StringVar(value='No Source Selected')
+Radiobutton(data_frame, background=bg_color, text=source_name[source_1], font=(font_face, 13),
+            variable=source, value=source_1, command=fnc_show_source).grid(
                 row=0, column=0, sticky='w', columnspan=3)
 
-Radiobutton(data_frame, background=bg_color, text=' DailyMail Latest News', font=(font_face, 13),
-            variable=source, value='https://www.reuters.com/world/', command=fnc_show_source).grid(
+Radiobutton(data_frame, background=bg_color, text=source_name[source_2], font=(font_face, 13),
+            variable=source, value=source_2, command=fnc_show_source).grid(
                 row=1, column=0, sticky='w', columnspan=3)
 
-Radiobutton(data_frame, background=bg_color, text=' BBT', font=(font_face, 13),
-            variable=source, value='https://www.abc.net.au/news/justin', command=fnc_show_source).grid(
+Radiobutton(data_frame, background=bg_color, text=source_name[source_3], font=(font_face, 13),
+            variable=source, value=source_3, command=fnc_show_source).grid(
                 row=2, column=0, sticky='w', columnspan=3)
 
 Button(master=data_frame, text='Show Latest', font=(font_face, 11),
