@@ -1,5 +1,5 @@
 
-#-----Statement of Authorship----------------------------------------#
+# -----Statement of Authorship----------------------------------------#
 #
 #  This is an individual assessment item for QUT's teaching unit
 #  IFB104, "Building IT Systems", Semester 1, 2024.  By submitting
@@ -12,19 +12,26 @@
 #  Put your student number here as an integer and your name as a
 #  character string:
 #
+from sqlite3 import *
+from webbrowser import open as urldisplay
+from re import *
+from tkinter.ttk import Progressbar
+from tkinter.scrolledtext import ScrolledText
+from tkinter import *
+from urllib.request import urlopen
+from sys import exit as abort
 student_number = 1234567
-student_name   = 'x y'
+student_name = 'x y'
 #
 #  NB: Files submitted without a completed copy of this statement
 #  will not be marked.  All files submitted will be subjected to
 #  software plagiarism analysis using the MoSS system
 #  (http://theory.stanford.edu/~aiken/moss/).
 #
-#--------------------------------------------------------------------#
+# --------------------------------------------------------------------#
 
 
-
-#-----Assessment Task 2 Description----------------------------------#
+# -----Assessment Task 2 Description----------------------------------#
 #
 #  In this assessment task you will combine your knowledge of Python
 #  programming, HTML-style mark-up languages, pattern matching,
@@ -40,11 +47,10 @@ student_name   = 'x y'
 #  "client".  This single template file will be used for all parts,
 #  together with some non-Python support files.
 #
-#--------------------------------------------------------------------#
+# --------------------------------------------------------------------#
 
 
-
-#-----Set up---------------------------------------------------------#
+# -----Set up---------------------------------------------------------#
 #
 # This section imports standard Python 3 modules sufficient to
 # complete this assignment.  Don't change any of the code in this
@@ -61,12 +67,10 @@ student_name   = 'x y'
 
 # A function for exiting the program immediately (renamed
 # because "exit" is already a standard Python function).
-from sys import exit as abort
 
 # A function for opening a web document given its URL.
 # [You WILL need to use this function in your solution,
 # either directly or via the "download" function below.]
-from urllib.request import urlopen
 
 # Some standard Tkinter functions.  [You WILL need to use
 # SOME of these functions in your solution.]  You may also
@@ -79,9 +83,6 @@ from urllib.request import urlopen
 # like "Label" which leads to confusion.  If you want to use
 # a widget from the tkinter.ttk module name it explicitly,
 # as is done below for the progress bar widget.)
-from tkinter import *
-from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Progressbar
 
 # Functions for finding occurrences of a pattern defined
 # via a regular expression.  [You do not necessarily need to
@@ -89,25 +90,21 @@ from tkinter.ttk import Progressbar
 # may be solvable with the string "find" function, but it will
 # be difficult to produce a concise and robust solution
 # without using regular expressions.]
-from re import *
 
 # A function for displaying a web document in the host
 # operating system's default web browser (renamed to
 # distinguish it from the built-in "open" function for
 # opening local files).  [You WILL need to use this function
 # in your solution.]
-from webbrowser import open as urldisplay
 
 # All the standard SQLite database functions.  [You WILL need
 # to use some of these in your solution.]
-from sqlite3 import *
 
 #
-#--------------------------------------------------------------------#
+# --------------------------------------------------------------------#
 
 
-
-#-----Validity Check-------------------------------------------------#
+# -----Validity Check-------------------------------------------------#
 #
 # This section confirms that the student has declared their
 # authorship.  You must NOT change any of the code below.
@@ -123,11 +120,10 @@ if not isinstance(student_name, str):
     abort()
 
 #
-#--------------------------------------------------------------------#
+# --------------------------------------------------------------------#
 
 
-
-#-----Supplied Function----------------------------------------------#
+# -----Supplied Function----------------------------------------------#
 #
 # Below is a function you can use in your solution if you find it
 # helpful.  You are not required to use this function, but it may
@@ -163,12 +159,12 @@ if not isinstance(student_name, str):
 #      option as it is both unreliable and unethical to
 #      override the wishes of the web document provider!
 #
-def download(url = 'http://www.wikipedia.org/',
-             target_filename = 'downloaded_document',
-             filename_extension = 'html',
-             save_file = True,
-             char_set = 'UTF-8',
-             incognito = False):
+def download(url='http://www.wikipedia.org/',
+             target_filename='downloaded_document',
+             filename_extension='html',
+             save_file=True,
+             char_set='UTF-8',
+             incognito=False):
 
     # Import the function for opening online documents and
     # the class for creating requests
@@ -192,7 +188,7 @@ def download(url = 'http://www.wikipedia.org/',
             # a Python script (not recommended!)
             request = Request(url)
             request.add_header('User-Agent',
-                               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; ' + \
+                               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; ' +
                                'rv:91.0; ADSSO) Gecko/20100101 Firefox/91.0')
             print("Warning - Request to server does not reveal client's true identity.")
             print("          Use this option only if absolutely necessary!\n")
@@ -200,20 +196,20 @@ def download(url = 'http://www.wikipedia.org/',
             # Behave ethically
             request = url
         web_page = urlopen(request)
-    except ValueError as message: # probably a syntax error
+    except ValueError as message:  # probably a syntax error
         print(f"\nCannot find requested document '{url}'")
         print(f"Error message was: {message}\n")
         return None
-    except HTTPError as message: # possibly an authorisation problem
+    except HTTPError as message:  # possibly an authorisation problem
         print(f"\nAccess denied to document at URL '{url}'")
         print(f"Error message was: {message}\n")
         return None
-    except URLError as message: # probably the wrong server address
+    except URLError as message:  # probably the wrong server address
         print(f"\nCannot access web server at URL '{url}'")
         print(f"Error message was: {message}\n")
         return None
-    except Exception as message: # something entirely unexpected
-        print("\nSomething went wrong when trying to download " + \
+    except Exception as message:  # something entirely unexpected
+        print("\nSomething went wrong when trying to download " +
               f"the document at URL '{str(url)}'")
         print(f"Error message was: {message}\n")
         return None
@@ -222,12 +218,12 @@ def download(url = 'http://www.wikipedia.org/',
     try:
         web_page_contents = web_page.read().decode(char_set)
     except UnicodeDecodeError as message:
-        print("\nUnable to decode document from URL " + \
+        print("\nUnable to decode document from URL " +
               f"'{url}' as '{char_set}' characters")
         print(f"Error message was: {message}\n")
         return None
     except Exception as message:
-        print("\nSomething went wrong when trying to decode " + \
+        print("\nSomething went wrong when trying to decode " +
               f"the document from URL '{url}'")
         print(f"Error message was: {message}\n")
         return None
@@ -237,7 +233,7 @@ def download(url = 'http://www.wikipedia.org/',
     if save_file:
         try:
             text_file = open(f'{target_filename}.{filename_extension}',
-                             'w', encoding = char_set)
+                             'w', encoding=char_set)
             text_file.write(web_page_contents)
             text_file.close()
         except Exception as message:
@@ -248,11 +244,10 @@ def download(url = 'http://www.wikipedia.org/',
     return web_page_contents
 
 #
-#--------------------------------------------------------------------#
+# --------------------------------------------------------------------#
 
 
-
-#-----Student's Solution---------------------------------------------#
+# -----Student's Solution---------------------------------------------#
 #
 # Put your solution below.
 #
@@ -263,21 +258,24 @@ main_window = Tk()
 # Your code goes here
 bg_color = 'gray90'
 font_face = 'cascadia'
-box_heading =('cascadia',16)
+box_heading = ('cascadia', 16)
 
 main_window.geometry('740x500')
-main_window.title("Poly Debnath's Fact Checking") #put a title here
+main_window.title("Poly Debnath's Fact Checking")  # put a title here
 main_window.config(background=bg_color)
 
 # all callback function
+
+
 def fnc_show_source():
     global msg
-    msg.grid_forget() #remove all past texts
+    msg.grid_forget()  # remove all past texts
     selection = source.get()
     # print('The message is \"', m, '\"')
-    msg = Message(status_frame, width=360, text= selection,
+    msg = Message(status_frame, width=360, text=selection,
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
+
 
 def fnc_show_latest():
     global msg
@@ -287,13 +285,16 @@ def fnc_show_latest():
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
+
 def fnc_show_details():
     global msg
     msg.grid_forget()
+    urldisplay(source.get())
     # print('Show Details Button Pressed !')
-    msg = Message(status_frame, width=360, text='Show Details Button Pressed !',
+    msg = Message(status_frame, width=360, text='Showing Details in Browser.',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
+
 
 def fnc_show_rating(r):
     global msg
@@ -302,58 +303,72 @@ def fnc_show_rating(r):
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
+
 def fnc_save_rating():
     global msg
     msg.grid_forget()
+    src = source.get()
     # print('Save Rating Button Pressed !')
-    msg = Message(status_frame, width=360, text='Save Rating Button Pressed !',
-                  background=bg_color, font=(font_face, 13))
+    if (src == 'No Option Selected'):
+        msg = Message(status_frame, width=360, text='Please select a source first !',
+                    background=bg_color, font=(font_face, 13))
+        msg.grid(row=0, column=0)
+        return
+    
+    string = download(src)
+    msg = Message(status_frame, width=360, text=src,
+                background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
+    print(findall('<h2.*</h2>', string), sep='\n')
+
+
 # Creating frames
-text_frame = Frame(master=main_window, width=400, height=500, padx=10, background=bg_color)
+text_frame = Frame(master=main_window, width=400,
+                   height=500, padx=10, background=bg_color)
 text_frame.grid_propagate(0)
-img_frame = Frame(master=main_window, borderwidth=4, border=0, background='red2')
+img_frame = Frame(master=main_window, borderwidth=4,
+                  border=0, background='red2')
 
 status_frame = LabelFrame(master=text_frame, text='System Status', background=bg_color,
-                          font=box_heading,fg='gray',labelanchor='nw', padx=5, pady=5,
+                          font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
                           borderwidth=3, border=4, width=380, height=150)
 status_frame.grid_propagate(0)
 
 data_frame = LabelFrame(master=text_frame, text='Data Source', background=bg_color,
-                        font=box_heading,fg='gray', labelanchor='nw', padx=5, pady=5,
+                        font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
                         borderwidth=3, border=4, width=250, height=170)
 data_frame.grid_propagate(0)
 
 rating_frame = LabelFrame(master=text_frame, text='Data Reliability', background=bg_color,
-                          font=box_heading,fg='gray', labelanchor='nw', padx=5, pady=5,
+                          font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
                           borderwidth=3, border=4, width=200, height=150)
 rating_frame.grid_propagate(0)
 
-#position of two main frame
+# position of two main frame
 text_frame.grid(row=0, column=1)
 img_frame.grid(row=0, column=0, padx=5)
 
-#position of subframes
+# position of subframes
 status_frame.grid(row=0, column=0, sticky='w', pady=3)
 data_frame.grid(row=1, column=0, sticky='w', pady=3)
 rating_frame.grid(row=2, column=0, sticky='w', pady=3)
 
-#initial message
+# initial message
 msg = Message(status_frame, width=360, text='Waiting for User Input . . .',
-              background=bg_color, font=(font_face, 13),fg='gray')
+              background=bg_color, font=(font_face, 13), fg='gray')
 msg.grid(row=0, column=0)
 
-#options for selecting the source
+# options for selecting the source
 source = StringVar(value='No Option Selected')
-Radiobutton(data_frame, background=bg_color, text=' Source - A', font=(font_face, 13),
-            variable=source, value='Source A selected !', command=fnc_show_source).grid(row=0, column=0)
+Radiobutton(data_frame, background=bg_color, text=' Syd', font=(font_face, 13),
+            variable=source, value='https://www.smh.com.au/breaking-news', command=fnc_show_source).grid(row=0, column=0, sticky='w')
 
-Radiobutton(data_frame, background=bg_color, text=' Source - B', font=(font_face, 13),
-            variable=source, value='Source B selected !', command=fnc_show_source).grid(row=1, column=0)
+Radiobutton(data_frame, background=bg_color, text=' DailyMail', font=(font_face, 13),
+            variable=source, value='https://www.reuters.com/world/', command=fnc_show_source).grid(row=1, column=0, sticky='w')
 
-Radiobutton(data_frame, background=bg_color, text=' Source - C', font=(font_face, 13),
-            variable=source, value='Source C selected !', command=fnc_show_source).grid(row=2, column=0)
+Radiobutton(data_frame, background=bg_color, text=' BBT', font=(font_face, 13),
+            variable=source, value='https://www.abc.net.au/news/justin', command=fnc_show_source).grid(row=2, column=0, sticky='w')
 
 Button(master=data_frame, text='Show Latest', font=(font_face, 11),
        command=fnc_show_latest).grid(row=3, column=0, padx=5)
@@ -361,16 +376,17 @@ Button(master=data_frame, text='Show Latest', font=(font_face, 11),
 Button(master=data_frame, text='Show Details', font=(font_face, 11),
        command=fnc_show_details).grid(row=3, column=1, padx=5)
 
-#rating input
+# rating input
 rate = IntVar()
-rating = Scale(master=rating_frame, background=bg_color, from_=1, to=5,variable=rate,
+rating = Scale(master=rating_frame, background=bg_color, from_=1, to=5, variable=rate,
                label='Rating', font=(font_face, 12), orient='horizontal', command=fnc_show_rating)
 
-btn = Button(master=rating_frame, text='Save Rating', font=(font_face, 11), command=fnc_save_rating)
+btn = Button(master=rating_frame, text='Save Rating',
+             font=(font_face, 11), command=fnc_save_rating)
 rating.pack()
 btn.pack(padx=5, pady=10)
 
-image = PhotoImage(file='./AIRobot.png') #image location here
+image = PhotoImage(file='./AIRobot.png')  # image location here
 
 img_lbl = Label(master=img_frame, image=image, bg='#bbeeff')
 img_lbl.grid(row=0, column=0)

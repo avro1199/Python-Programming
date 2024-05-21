@@ -261,15 +261,157 @@ def download(url = 'http://www.wikipedia.org/',
 main_window = Tk()
 
 # Your code goes here
-# pass
+bg_color = 'gray90'
+font_face = 'cascadia'
+box_heading = ('cascadia', 16)
 
-def put_into_db(source, headline, time, rating):
+main_window.geometry('740x500')
+main_window.title("Poly Debnath's Fact Checking")
+main_window.config(background=bg_color)
+
+# all callback function
+def add2db(source, headline, time, rating):
     db = connect('./reliability_ratings.db')
     command = f"INSERT INTO 'ratings' ('news_source', 'headline', 'dateline', 'rating') VALUES ('{source}', '{headline}', '{time}', {rating})"
     db.execute(command)
     db.commit()
 
-put_into_db('Times Now', 'Who are You ?', '4:30 pm', 3)
+def fnc_show_source():
+    global msg
+    msg.grid_forget()  # remove all past texts
+    selection = source.get()
+    # print('The message is \"', m, '\"')
+    msg = Message(status_frame, width=360, text=selection,
+                  background=bg_color, font=(font_face, 13))
+    msg.grid(row=0, column=0)
+
+
+def fnc_show_latest():
+    global msg
+    msg.grid_forget()
+    # print('Show Latest Button Pressed !')
+    msg = Message(status_frame, width=360, text='Show Latest Button Pressed !',
+                  background=bg_color, font=(font_face, 13))
+    msg.grid(row=0, column=0)
+
+
+def fnc_show_details():
+    global msg
+    msg.grid_forget()
+    urldisplay(source.get())
+    # print('Show Details Button Pressed !')
+    msg = Message(status_frame, width=360, text='Showing Details in Browser.',
+                  background=bg_color, font=(font_face, 13))
+    msg.grid(row=0, column=0)
+
+
+def fnc_show_rating(r):
+    global msg
+    msg.grid_forget()
+    msg = Message(status_frame, width=360, text='Rating '+str(r)+' selected !',
+                  background=bg_color, font=(font_face, 13))
+    msg.grid(row=0, column=0)
+
+
+def fnc_save_rating():
+    global msg
+    msg.grid_forget()
+    src = source.get()
+    # print('Save Rating Button Pressed !')
+    if (src == 'No Option Selected'):
+        msg = Message(status_frame, width=360, text='Please select a source first !',
+                    background=bg_color, font=(font_face, 13))
+        msg.grid(row=0, column=0)
+        return
+    
+    string = download(src)
+    msg = Message(status_frame, width=360, text=src,
+                background=bg_color, font=(font_face, 13))
+    msg.grid(row=0, column=0)
+
+    print(findall('<h2.*</h2>', string), sep='\n')
+
+
+# Creating frames
+text_frame = Frame(master=main_window, width=400,
+                   height=500, padx=10, background=bg_color)
+text_frame.grid_propagate(0)
+img_frame = Frame(master=main_window, borderwidth=4,
+                  border=0, background='red2')
+
+status_frame = LabelFrame(master=text_frame, text='System Status', background=bg_color,
+                          font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
+                          borderwidth=3, border=4, width=380, height=150)
+status_frame.grid_propagate(0)
+
+data_frame = LabelFrame(master=text_frame, text='Data Source', background=bg_color,
+                        font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
+                        borderwidth=3, border=4, width=250, height=170)
+data_frame.grid_propagate(0)
+
+rating_frame = LabelFrame(master=text_frame, text='Data Reliability', background=bg_color,
+                          font=box_heading, fg='gray', labelanchor='nw', padx=5, pady=5,
+                          borderwidth=3, border=4, width=200, height=150)
+rating_frame.grid_propagate(0)
+
+# position of two main frame
+text_frame.grid(row=0, column=1)
+img_frame.grid(row=0, column=0, padx=5)
+
+# position of subframes
+status_frame.grid(row=0, column=0, sticky='w', pady=3)
+data_frame.grid(row=1, column=0, sticky='w', pady=3)
+rating_frame.grid(row=2, column=0, sticky='w', pady=3)
+
+# initial message
+msg = Message(status_frame, width=360, text='Waiting for User Input . . .',
+              background=bg_color, font=(font_face, 13), fg='gray')
+msg.grid(row=0, column=0)
+
+# options for selecting the source
+source = StringVar(value='No Option Selected')
+Radiobutton(data_frame, background=bg_color, text=' The reuters news(brisbane)', font=(font_face, 13),
+            variable=source, value='https://www.smh.com.au/breaking-news', command=fnc_show_source).grid(
+                row=0, column=0, sticky='w', columnspan=3)
+
+Radiobutton(data_frame, background=bg_color, text=' DailyMail Latest News', font=(font_face, 13),
+            variable=source, value='https://www.reuters.com/world/', command=fnc_show_source).grid(
+                row=1, column=0, sticky='w', columnspan=3)
+
+Radiobutton(data_frame, background=bg_color, text=' BBT', font=(font_face, 13),
+            variable=source, value='https://www.abc.net.au/news/justin', command=fnc_show_source).grid(
+                row=2, column=0, sticky='w', columnspan=3)
+
+Button(master=data_frame, text='Show Latest', font=(font_face, 11),
+       command=fnc_show_latest).grid(row=3, column=0, padx=5)
+
+Button(master=data_frame, text='Show Details', font=(font_face, 11),
+       command=fnc_show_details).grid(row=3, column=1, padx=5)
+
+# rating input
+rate = IntVar()
+rating = Scale(master=rating_frame, background=bg_color, from_=1, to=5, variable=rate,
+               label='Rating', font=(font_face, 12), orient='horizontal', command=fnc_show_rating)
+
+btn = Button(master=rating_frame, text='Save Rating',
+             font=(font_face, 11), command=fnc_save_rating)
+rating.pack()
+btn.pack(padx=5, pady=10)
+
+image = PhotoImage(file='./AIRobot.png')
+
+img_lbl = Label(master=img_frame, image=image, bg='#bbeeff')
+img_lbl.grid(row=0, column=0)
+
+
+menubar = Menu()
+main_window.config(menu=menubar)
+
+mymenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Menu', menu=mymenu)
+mymenu.add_command(label='Option 1')
+mymenu.add_separator()
+mymenu.add_command(label='Option 2')
 
 # Start the event loop to detect user inputs
 main_window.mainloop()

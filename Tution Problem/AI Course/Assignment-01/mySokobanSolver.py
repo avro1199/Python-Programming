@@ -215,7 +215,7 @@ class SokobanPuzzle(search.Problem):
     def goal_test(self, state):
         return set(state[1]) == set(self.goal[1])
 
-    def path_cost(self, c, state1, action, state2):
+    def path_cost(self, cost, state1, action, state2):
         assert self.result(state1, action) == state2
 
         worker = list(state1[0])
@@ -226,10 +226,10 @@ class SokobanPuzzle(search.Problem):
         worker[1] += y
 
         if((worker[0],worker[1]) in boxes):
-            w = self.weights[boxes.index((worker[0],worker[1]))]
-            return c + 1 + w
+            weight = self.weights[boxes.index((worker[0],worker[1]))]
+            return cost + 1 + weight
         
-        return c + 1
+        return cost + 1
 
     def h(self, node):
         state = node.state
