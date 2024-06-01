@@ -266,15 +266,25 @@ bg_color = 'gray90'
 font_face = 'cascadia'
 box_heading = ('cascadia', 16)
 
-source_name = {'https://www.abc.net.au/news/justin':'ABC News',
-           'https://www.smh.com.au/':'The Sydney Morning Herald', 
-           'https://www.bbc.com/news/world/australia':'BBC News (Australia)', 
-           'https://www.reuters.com/':'Reuters'}
+source_name = {'https://www.news.com.au/': 'News Corp Australia',
+                'https://www.abc.net.au/news/justin':'ABC News',
+                'https://www.smh.com.au/breaking-news':'The Sydney Morning Herald', 
+                'https://www.bbc.com/news/world/australia':'BBC News (Australia)', 
+                'https://www.reuters.com/':'Reuters',
+                'https://www.cnbc.com/world/':'CNBC News',
+                'https://www.theage.com.au/breaking-news':'The Age',
+                'https://www.brisbanetimes.com.au/national/queensland':"Birsbane Times"}
 
-source_1 = 'https://www.bbc.com/news/world/australia'
-source_2 = 'https://www.abc.net.au/news/justin'
+headline = None
+dateline = None
+
+source_1 = 'https://www.news.com.au/'
+# source_2 = 'https://www.abc.net.au/news/justin'
+source_2 = 'https://www.smh.com.au/breaking-news'
 # source_3 = 'https://www.reuters.com/' #currently not accessable
-source_3 = 'https://www.smh.com.au/'
+# source_3 = 'https://www.cnbc.com/world/'
+# source_3 = 'https://www.theage.com.au/breaking-news'
+source_3 = 'https://www.brisbanetimes.com.au/national/queensland'
 
 main_window.geometry('740x500')
 main_window.title("Poly Debnath's Fact Checking")
@@ -285,45 +295,76 @@ def add2db(source, headline, time, rating):
     command = f"INSERT INTO 'ratings' ('news_source', 'headline', 'dateline', 'rating') VALUES ('{source}', '{headline}', '{time}', {rating})"
     db.execute(command)
     db.commit()
+    db.close()
 
 def print_noSource_condition():
     global msg
     msg.grid_forget()
-    msg = Message(status_frame, width=360, text='Please select a source first !',
+    msg = Message(status_frame, width=350, text='Please select a source first !',
                 background=bg_color, font=(font_face, 13), fg='#dd0000')
     msg.grid(row=0, column=0)
 
 # all callback function for widgets
 def fnc_show_source():
     # print('The message')
-    global msg
+    global msg, headline, dateline
     src = source.get()
-    news_data = download(src)
+    news_data = download(src, save_file=False) #put save_file=True to save the html code
 
     if(news_data == None):
         msg.grid_forget()
-        msg = Message(status_frame, width=360, text='ERROR: Cannot access the Selected Source !',
+        msg = Message(status_frame, width=350, text='ERROR: Cannot access the Selected Source !',
                   background=bg_color, font=(font_face, 13), fg='#ff0000')
         msg.grid(row=0, column=0)
         source.set('No Source Selected')
         return
     
     msg.grid_forget()  # remove all past texts
-    msg = Message(status_frame, width=360, text=source_name[src] + ' is selected as source !',
+    msg = Message(status_frame, width=350, text=source_name[src] + ' is selected as source !',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
+
+    headline_regex = 'Initial RegEx for Headline'
+    dateline_regex = 'Initial RegEx for Timeline'
+
+    if(src == 'https://www.news.com.au/'):
+        headline_regex = r'<h4 class="storyblock_title"><a class="storyblock_title_link" href="https://www\.news\.com\.au/.*" data-tgev="event10" data-tgev-metric="npv" data-tgev-order="1" data-tgev-label="promo" data-word-match="" data-tgev-container="tops">([^<>]+)</a></h4>'
+        dateline_regex = r'<time class="storyblock_datetime g_font-base-s" datetime="([^<>]*)">[^<>]*</time>'
+
+    elif (src == 'https://www.brisbanetimes.com.au/national/queensland'):
+        headline_regex = r'<h3 class="_2XVos" data-testid="article-headline" data-pb-type="hl"><a data-testid="article-link" href="/national/queensland/[^<>]*\.html">([^<>]*)</a></h3>'
+        dateline_regex = r'<time class="_2_zR-" data-testid="datetime" dateTime="([^<>]*)">[^<>]+</time>'
+
+    elif(src == 'https://www.smh.com.au/breaking-news'):
+        headline_regex = r'<h3 class="_13KNF _2XVos" data-testid="article-headline" data-pb-type="hl"><a data-testid="article-link" href="/[^<>]+\.html">([^<>]+)</a></h3>'
+        dateline_regex = r'<time class="_2_zR-" data-testid="datetime" dateTime="([^<>]*)">[^<>]+</time>'
+
+    headline_lst = findall(headline_regex, news_data) #searching for regex match
+    dateline_lst = findall(dateline_regex, news_data)
+
+    # print(headline_lst)
+
+    if(len(headline_lst) == 0):
+        headline = 'Can not extract headline !'
+    else:
+        headline = headline_lst[0]
+
+    if(len(dateline_lst) == 0):
+        dateline = 'Time data not found !'
+    else:
+        dateline = dateline_lst[0]
 
 
 def fnc_show_latest():
     # print('Show Latest Button Pressed !')
-    global msg
+    global msg, headline, dateline
     src = source.get()
     if (src == 'No Source Selected'):
         print_noSource_condition()
         return
         
     msg.grid_forget()
-    msg = Message(status_frame, width=360, text='Not implemented yet !\n\n Have to extract data before further development',
+    msg = Message(status_frame, width=350, text=headline + '\n\n' + dateline,
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
@@ -338,7 +379,7 @@ def fnc_show_details():
     urldisplay(src)
     global msg
     msg.grid_forget()
-    msg = Message(status_frame, width=360, text='Showing Details in the Browser...',
+    msg = Message(status_frame, width=350, text='Showing Details in the Browser...',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
@@ -346,7 +387,7 @@ def fnc_show_details():
 def fnc_show_rating(r):
     global msg
     msg.grid_forget()
-    msg = Message(status_frame, width=360, text='Rating '+str(r)+' selected !',
+    msg = Message(status_frame, width=350, text='Rating '+str(r)+' selected for the current news !',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
@@ -358,16 +399,15 @@ def fnc_save_rating():
         print_noSource_condition()
         return
     
+    global headline, dateline
     news_src = source_name[src]
-    head_line = 'Demo Head Lines from '+ news_src
-    time_line = '(2:46:00 GMT)'
     selected_rating = rate.get()
 
-    add2db(news_src, head_line, time_line, selected_rating)
+    add2db(news_src, headline, dateline, selected_rating)
 
     global msg
     msg.grid_forget()
-    msg = Message(status_frame, width=360, text='Rating '+str(selected_rating)+' is saved for "'+ head_line + '"',
+    msg = Message(status_frame, width=350, text='Rating '+str(selected_rating)+' is saved for "'+ headline + '"',
                   background=bg_color, font=(font_face, 13))
     msg.grid(row=0, column=0)
 
@@ -403,7 +443,7 @@ data_frame.grid(row=1, column=0, sticky='w', pady=3)
 rating_frame.grid(row=2, column=0, sticky='w', pady=3)
 
 # initial message
-msg = Message(status_frame, width=360, text='Waiting for User Input . . .',
+msg = Message(status_frame, width=350, text='Waiting for User Input . . .',
               background=bg_color, font=(font_face, 13), fg='gray')
 msg.grid(row=0, column=0)
 
@@ -430,7 +470,7 @@ Button(master=data_frame, text='Show Details', font=(font_face, 11),
 # rating input
 rate = IntVar()
 rating = Scale(master=rating_frame, background=bg_color, from_=1, to=5, variable=rate,
-               label='Rating', font=(font_face, 12), orient='horizontal', command=fnc_show_rating)
+               label='Rating', font=(font_face, 12), orient='horizontal')
 
 btn = Button(master=rating_frame, text='Save Rating',
              font=(font_face, 11), command=fnc_save_rating)
