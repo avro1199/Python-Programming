@@ -15,7 +15,7 @@ Hopefully without introducing new bugs.
 ### LIBRARY IMPORTS HERE ###
 import os
 import numpy as np
-import keras.applications as ka
+import keras.applications as ka # type: ignore
 import keras
     
 def my_team():
