@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+
+<head>
+
+  <title>Tallest Steel Roller Coasters</title>
+
+</head>
+
+<body>
+
+<h2>The World's Tallest Steel Roller Coasters</h2>
+
+<table border=2>
+<tbody>
+
+<tr>
+<th>Rank</th><th>Name</th><th>Park</th><th>Country</th><th>Height</th><th>Manufacturer</th><th>Record held</th>
+</tr>
+
+<tr>
+<th>**</th><td><strong>Falcon's Flight</strong></td><td><em>Six Flags Qiddiya</em></td><td>Saudi Arabia</td><td>640 ft (195 m)</td><td>Intamin</td><td>NA</td>
+</tr>
+
+<tr>
+<th>1</th><td><strong>Kingda Ka</strong></td><td><em>Six Flags Great Adventure</em></td><td>United States</td><td>456 ft (139 m)</td><td>Intamin</td><td>May 2005 - present</td>
+</tr>
+
+<tr>
+<th>2</th><td><strong>Top Thrill 2</strong></td><td><em>Cedar Point</em></td><td>United States</td><td>420 ft (130 m)</td><td>Intamin/Zamperla</td><td>May 2003 - May 2005</td>
+</tr>
+
+<tr>
+<th>3</th><td><strong>Superman: Escape from Krypton</strong></td><td><em>Six Flags Magic Mountain</em></td><td>United States</td><td>415 ft (126 m)</td><td>Intamin</td><td>March 1997 - May 2003</td>
+</tr>
+
+<tr>
+<th>4</th><td><strong>Red Force</strong></td><td><em>Ferrari Land</em></td><td>Spain</td><td>367 ft (112 m)</td><td>Intamin</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>5</th><td><strong>Fury 325</strong></td><td><em>Carowinds</em></td><td>United States</td><td>325 ft (99 m)</td><td>Bolliger &amp; Mabillard</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>6</th><td><strong>Steel Dragon 2000</strong></td><td><em>Nagashima Spa Land</em></td><td>Japan</td><td>318 ft (97 m)</td><td>Morgan</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>7</th><td><strong>Millennium Force</strong></td><td><em>Cedar Point</em></td><td>United States</td><td>310 ft (94 m)</td><td>Intamin</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>8</th><td><strong>Leviathan</strong></td><td><em>Canada's Wonderland</em></td><td>Canada</td><td>306 ft (93 m)</td><td>Bolliger &amp; Mabillard</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>9</th><td><strong>Project 305</strong></td><td><em>Kings Dominion</em></td><td>United States</td><td>305 ft (93 m)</td><td>Intamin</td><td>TBC</td>
+</tr>
+
+<tr>
+<th>10</th><td><strong>Orion</strong></td><td><em>Kings Island</em></td><td>United States</td><td>287 ft (87 m)</td><td>Bolliger &amp; Mabillard</td><td>TBC</td>
+</tr>
+
+</tbody>
+</table>
+
+<p>** = Under construction, TBC = To be confirmed, NA = Not applicable</p>
+
+<p><a href="https://en.wikipedia.org/wiki/List_of_roller_coaster_rankings">Go to original source</a></p>
+
+</body>
