@@ -1,0 +1,78 @@
+import numpy as np
+
+def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
+    '''
+    Split the data into training, validation (optional), and testing sets.
+
+    Inputs:
+        - X: np.ndarray of shape (n_samples, n_features) representing the dataset features
+        - Y: np.ndarray of shape (n_samples,) representing the target values
+        - train_fraction: float, the proportion of the dataset to include in the training set
+        - randomize: boolean, whether to shuffle the data before splitting
+        - eval_set: boolean, whether to create an evaluation (validation) set
+
+    Outputs:
+        - train_X: np.ndarray, training set features
+        - val_X: np.ndarray, validation set features (if eval_set is True)
+        - test_X: np.ndarray, testing set features
+        - train_Y: np.ndarray, training set targets
+        - val_Y: np.ndarray, validation set targets (if eval_set is True)
+        - test_Y: np.ndarray, testing set targets
+    '''
+    n_samples = X.shape[0]
+    indices = np.arange(n_samples)
+
+    if randomize:
+        np.random.seed(42)  # For reproducibility
+        np.random.shuffle(indices)
+    
+    train_size = int(n_samples * train_fraction)
+    
+    if eval_set:
+        remaining_size = n_samples - train_size
+        val_size = remaining_size // 2
+        test_size = remaining_size - val_size
+        
+        train_indices = indices[:train_size]
+        val_indices = indices[train_size:train_size + val_size]
+        test_indices = indices[train_size + val_size:]
+        
+        train_X, val_X, test_X = X[train_indices], X[val_indices], X[test_indices]
+        train_Y, val_Y, test_Y = Y[train_indices], Y[val_indices], Y[test_indices]
+        
+        return train_X, val_X, test_X, train_Y, val_Y, test_Y
+    else:
+        test_size = n_samples - train_size
+        
+        train_indices = indices[:train_size]
+        test_indices = indices[train_size:]
+        
+        train_X, test_X = X[train_indices], X[test_indices]
+        train_Y, test_Y = Y[train_indices], Y[test_indices]
+        
+        return train_X, test_X, train_Y, test_Y
+
+# Example usage:
+# Generating some synthetic data for the example
+np.random.seed(42)
+X = np.random.randn(100, 10)
+Y = np.random.randint(0, 2, 100)
+
+# Split the data into training, validation, and testing sets
+train_fraction = 0.6
+train_X, val_X, test_X, train_Y, val_Y, test_Y = split_data(X, Y, train_fraction, randomize=True, eval_set=True)
+
+print("Training data shape:", train_X.shape)
+print("Validation data shape:", val_X.shape)
+print("Testing data shape:", test_X.shape)
+print("Training target shape:", train_Y.shape)
+print("Validation target shape:", val_Y.shape)
+print("Testing target shape:", test_Y.shape)
+
+# Split the data into training and testing sets only
+train_X, test_X, train_Y, test_Y = split_data(X, Y, train_fraction, randomize=True, eval_set=False)
+
+print("\nTraining data shape (no validation set):", train_X.shape)
+print("Testing data shape (no validation set):", test_X.shape)
+print("Training target shape (no validation set):", train_Y.shape)
+print("Testing target shape (no validation set):", test_Y.shape)

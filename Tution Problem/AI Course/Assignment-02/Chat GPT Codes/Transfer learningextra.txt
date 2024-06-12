@@ -1,0 +1,84 @@
+import numpy as np
+from sklearn.metrics import accuracy_score
+
+def transfer_learning(train_set, eval_set, test_set, model, parameters):
+    '''
+    Perform transfer learning on the given model using the provided training,
+    evaluation, and testing sets.
+
+    Inputs:
+        - train_set: tuple of (train_X, train_Y) where train_X is the training set features
+                     and train_Y is the training set targets
+        - eval_set: tuple of (val_X, val_Y) where val_X is the validation set features
+                    and val_Y is the validation set targets
+        - test_set: tuple of (test_X, test_Y) where test_X is the testing set features
+                    and test_Y is the testing set targets
+        - model: a pre-trained model instance that supports transfer learning
+        - parameters: dictionary containing the training parameters such as learning rate,
+                      batch size, number of epochs, etc.
+
+    Outputs:
+        - final_model: the trained model after transfer learning
+        - eval_accuracy: accuracy on the evaluation set
+        - test_accuracy: accuracy on the testing set
+    '''
+    train_X, train_Y = train_set
+    val_X, val_Y = eval_set
+    test_X, test_Y = test_set
+
+    # Set model parameters from the provided dictionary
+    learning_rate = parameters.get('learning_rate', 0.001)
+    batch_size = parameters.get('batch_size', 32)
+    epochs = parameters.get('epochs', 10)
+
+    # Compile the model with the given learning rate
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    
+    # Train the model on the training set
+    model.fit(train_X, train_Y, validation_data=(val_X, val_Y), epochs=epochs, batch_size=batch_size)
+    
+    # Evaluate the model on the evaluation set
+    eval_loss, eval_accuracy = model.evaluate(val_X, val_Y)
+    
+    # Evaluate the model on the testing set
+    test_loss, test_accuracy = model.evaluate(test_X, test_Y)
+    
+    return model, eval_accuracy, test_accuracy
+
+# Example usage:
+# Generating some synthetic data for the example
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+
+np.random.seed(42)
+train_X = np.random.randn(600, 10)
+train_Y = np.random.randint(0, 2, 600)
+val_X = np.random.randn(200, 10)
+val_Y = np.random.randint(0, 2, 200)
+test_X = np.random.randn(200, 10)
+test_Y = np.random.randint(0, 2, 200)
+
+train_set = (train_X, train_Y)
+eval_set = (val_X, val_Y)
+test_set = (test_X, test_Y)
+
+# Define a simple model for demonstration
+model = Sequential([
+    Dense(64, activation='relu', input_shape=(10,)),
+    Dense(32, activation='relu'),
+    Dense(2, activation='softmax')
+])
+
+# Parameters for transfer learning
+parameters = {
+    'learning_rate': 0.001,
+    'batch_size': 32,
+    'epochs': 10
+}
+
+# Perform transfer learning
+final_model, eval_accuracy, test_accuracy = transfer_learning(train_set, eval_set, test_set, model, parameters)
+
+print(f"Evaluation Accuracy: {eval_accuracy}")
+print(f"Testing Accuracy: {test_accuracy}")

@@ -1,0 +1,61 @@
+import numpy as np
+
+def confusion_matrix(predictions, ground_truth, plot=False, all_classes=None):
+    '''
+    Given a set of classifier predictions and the ground truth, calculate and
+    return the confusion matrix of the classifier's performance.
+
+    Inputs:
+        - predictions: np.ndarray of length n where n is the number of data
+                       points in the dataset being classified and each value
+                       is the class predicted by the classifier
+        - ground_truth: np.ndarray of length n where each value is the correct
+                        value of the class predicted by the classifier
+        - plot: boolean. If true, create a plot of the confusion matrix with
+                either matplotlib or with sklearn.
+        - classes: a set of all unique classes that are expected in the dataset.
+                   If None is provided we assume all relevant classes are in 
+                   the ground_truth instead.
+    Outputs:
+        - cm: type np.ndarray of shape (c,c) where c is the number of unique  
+              classes in the ground_truth
+              
+              Each row corresponds to a unique class in the ground truth and
+              each column to a prediction of a unique class by a classifier
+    '''
+    if all_classes is None:
+        all_classes = np.unique(ground_truth)
+    
+    cm = np.zeros((len(all_classes), len(all_classes)), dtype=int)
+    
+    class_to_index = {cls: idx for idx, cls in enumerate(all_classes)}
+    
+    for true, pred in zip(ground_truth, predictions):
+        cm[class_to_index[true], class_to_index[pred]] += 1
+    
+    if plot:
+        try:
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            
+            plt.figure(figsize=(10, 7))
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=all_classes, yticklabels=all_classes)
+            plt.ylabel('Actual')
+            plt.xlabel('Predicted')
+            plt.title('Confusion Matrix')
+            plt.show()
+        except ImportError:
+            print("Plotting is disabled. Install matplotlib and seaborn to enable plotting.")
+    
+    return cm
+
+# Example usage:
+predictions = np.array([0, 1, 0, 1, 0, 1, 1, 0])
+ground_truth = np.array([0, 0, 0, 1, 0, 1, 1, 1])
+
+# Calculate confusion matrix without plotting
+cm = confusion_matrix(predictions, ground_truth)
+print("Confusion Matrix (without plot):\n", cm)
+
+# Calculate and plot confusion matrix
+cm_plot = confusion_matrix(predictions, ground_truth, plot=True)
