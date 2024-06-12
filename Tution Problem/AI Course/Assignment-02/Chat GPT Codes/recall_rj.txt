@@ -1,0 +1,18 @@
+precision = []
+
+    #compute the confusion matrix first
+    cm = confusion_matrix(predictions, ground_truth)
+
+    for i in range(len(cm)):
+        tp = 0
+        fp = 0
+        for j in range(len(cm)):
+            if(j==i):
+                tp += cm[i][j]
+            else:
+                fp += cm[i][j]
+            
+        precision.append(tp/(tp+fp))
+
+    # Handle cases where TP + FP is 0 to avoid division by zero
+    precision = np.nan_to_num(precision, nan=0.0)

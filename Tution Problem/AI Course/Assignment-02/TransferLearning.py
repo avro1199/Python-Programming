@@ -57,7 +57,31 @@ def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
     
     Insert a more detailed description here.
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    if randomize:
+        indices = np.random.permutation(len(X))
+    else:
+        indices = np.arange(len(X))
+
+    train_size = int(len(X) * train_fraction)
+    eval_test_size = len(X) - train_size
+
+    train_indices = indices[:train_size]
+    eval_test_indices = indices[train_size:]
+
+    train_X, eval_test_X = X[train_indices], X[eval_test_indices]
+    train_Y, eval_test_Y = Y[train_indices], Y[eval_test_indices]
+
+    if eval_set:
+        eval_X = eval_test_X[:(len(eval_test_X)//2)]
+        eval_Y = eval_test_Y[:(len(eval_test_Y)//2)]
+        test_X = eval_test_X[(len(eval_test_X)//2):]
+        test_Y = eval_test_Y[(len(eval_test_Y)//2):]
+
+        return (train_X, train_Y), (eval_X, eval_Y), (test_X, test_Y)
+    else:
+        return (train_X, train_Y), (eval_test_X, eval_test_Y)
     
     
 
@@ -85,7 +109,31 @@ def confusion_matrix(predictions, ground_truth, plot=False, all_classes=None):
               each column to a prediction of a unique class by a classifier
     '''
     
-    raise NotImplementedError
+    # raise NotImplementedError
+    if all_classes is None:
+        all_classes = np.unique(ground_truth)
+    
+    cm = np.zeros((len(all_classes), len(all_classes)), dtype=int)
+    
+    class_to_index = {cls: idx for idx, cls in enumerate(all_classes)}
+    
+    for true, pred in zip(ground_truth, predictions):
+        cm[class_to_index[true], class_to_index[pred]] += 1
+    
+    if plot:
+        try:
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            
+            plt.figure(figsize=(10, 7))
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=all_classes, yticklabels=all_classes)
+            plt.ylabel('True Class')
+            plt.xlabel('Predicted Class')
+            plt.title('Confusion Matrix')
+            plt.show()
+        except ImportError:
+            print("Plotting is disabled. Install matplotlib and seaborn to enable plotting.")
+
     return cm
     
 
@@ -98,7 +146,27 @@ def precision(predictions, ground_truth):
         - precision: type np.ndarray of length c,
                      values are the precision for each class
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    # Determine the number of classes
+    classes = np.unique(ground_truth)
+    num_classes = len(classes)
+    
+    # Initialize true positives (TP) and false positives (FP) arrays
+    TP = np.zeros(num_classes)
+    FP = np.zeros(num_classes)
+    
+    # Calculate TP and FP for each class
+    for i, cls in enumerate(classes):
+        TP[i] = np.sum((predictions == cls) & (ground_truth == cls))
+        FP[i] = np.sum((predictions == cls) & (ground_truth != cls))
+    
+    # Calculate precision for each class
+    precision = TP / (TP + FP)
+    
+    # Handle cases where TP + FP is 0 to avoid division by zero
+    precision = np.nan_to_num(precision, nan=0.0)
+
     return precision
 
 def recall(predictions, ground_truth):
@@ -110,7 +178,27 @@ def recall(predictions, ground_truth):
         - recall: type np.ndarray of length c,
                      values are the recall for each class
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    # Determine the number of classes
+    classes = np.unique(ground_truth)
+    num_classes = len(classes)
+    
+    # Initialize true positives (TP) and false negatives (FN) arrays
+    TP = np.zeros(num_classes)
+    FN = np.zeros(num_classes)
+    
+    # Calculate TP and FN for each class
+    for i, cls in enumerate(classes):
+        TP[i] = np.sum((predictions == cls) & (ground_truth == cls))
+        FN[i] = np.sum((predictions != cls) & (ground_truth == cls))
+    
+    # Calculate recall for each class
+    recall = TP / (TP + FN)
+    
+    # Handle cases where TP + FN is 0 to avoid division by zero
+    recall = np.nan_to_num(recall, nan=0.0)
+
     return recall
 
 def f1(predictions, ground_truth):
@@ -122,7 +210,18 @@ def f1(predictions, ground_truth):
         - f1: type nd.ndarry of length c where c is the number of classes
     '''
     
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    # Calculate precision and recall
+    prec = precision(predictions, ground_truth)
+    rec = recall(predictions, ground_truth)
+    
+    # Calculate F1 score for each class
+    f1 = 2 * (prec * rec) / (prec + rec)
+    
+    # Handle cases where precision + recall is 0 to avoid division by zero
+    f1 = np.nan_to_num(f1, nan=0.0)
+   
     return f1
 
 def k_fold_validation(features, ground_truth, classifier, k=2):
