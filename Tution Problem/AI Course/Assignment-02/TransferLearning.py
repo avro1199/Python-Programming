@@ -25,14 +25,17 @@ def my_team():
     
     '''
     # raise NotImplementedError
-    return [(2020338038, 'Rj', 'Avro')]
+    return [(2020338038, 'Rj', 'Avro'),(2020338038, 'First', 'Avro')]
     
 def load_model():
     '''
     Load in a model using the tf.keras.applications model and return it.
-    Insert a more detailed description here
+    As we want to use this model for transfer learning we don't need to include the top layer
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+    model = ka.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
+
+    return model
     
 
 def load_data(path):
@@ -43,7 +46,28 @@ def load_data(path):
     
     Insert a more detailed description here.
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    data = []
+    labels = []
+    class_names = sorted(os.listdir(path))
+    class_to_idx = {class_name: idx for idx,
+                    class_name in enumerate(class_names)}
+
+    for class_name in class_names:
+        class_dir = os.path.join(path, class_name)
+        for img_name in os.listdir(class_dir):
+            img_path = os.path.join(class_dir, img_name)
+            img = keras.preprocessing.image.load_img(
+                img_path, target_size=(224, 224))
+            img = keras.preprocessing.image.img_to_array(img) / 255.0
+            data.append(img)
+            labels.append(class_to_idx[class_name])
+
+    data = np.array(data)
+    labels = np.array(labels)
+
+    return (data, labels)
     
     
 def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
@@ -244,25 +268,65 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         the performance metrics [precision, recall, f1_score]
     '''
     
-    #split data
+    # split data
     ### YOUR CODE HERE ###
-    
-    #go through each partition and use it as a test set.
-    for partition_no in range(k):
-        #determine test and train sets
-        ### YOUR CODE HERE###
+    indices = np.random.permutation(len(features))
+
+    partition_size = int(len(features) / k)
+
+    precision_scores = []
+    recall_scores = []
+    f1_scores = []
+
+    # model = classifier
         
-        #fit model to training data and perform predictions on the test set
+    # go through each partition and use it as a test set.
+    for partition_no in range(k):
+        # determine test and train sets
+        ### YOUR CODE HERE###
+
+        # classifier = model #each time a new classifier that is not previously trained
+
+        test_index = indices[partition_no*partition_size : (partition_no+1)*partition_size]
+        train_index = np.array(list(index for index in indices if index not in test_index))
+
+        print('Test => ', len(test_index))
+        print('Train => ', len(train_index))
+
+        train_features, test_features = features[train_index], features[test_index]
+        train_classes, test_classes = ground_truth[train_index], ground_truth[test_index]
+
+        # fit model to training data and perform predictions on the test set
         classifier.fit(train_features, train_classes)
         predictions = classifier.predict(test_features)
-        
-        #calculate performance metrics
+        predictions = np.array(list(prediction.argmax() for prediction in predictions))
+
+        # calculate performance metrics
         ### YOUR CODE HERE###
-    
-    #perform statistical analyses on metrics
+        precision_values = precision(predictions, test_classes)
+        recall_values = recall(predictions, test_classes)
+        f1_values = f1(predictions, test_classes)
+
+        precision_scores.append(precision_values)
+        # print(precision_values)
+        recall_scores.append(recall_values)
+        f1_scores.append(f1_values)
+
+
+    # perform statistical analyses on metrics
     ### YOUR CODE HERE###
-    
-    raise NotImplementedError
+
+    avg_precision = np.mean(precision_scores, axis=0)
+    avg_recall = np.mean(recall_scores, axis=0)
+    avg_f1 = np.mean(f1_scores, axis=0)
+
+    sigma_precision = np.std(precision_scores, axis=0)
+    sigma_recall = np.std(recall_scores, axis=0)
+    sigma_f1 = np.std(f1_scores, axis=0)
+
+    avg_metrics = np.array([avg_precision, avg_recall, avg_f1])
+    sigma_metrics = np.array([sigma_precision, sigma_recall, sigma_f1])
+
     return avg_metrics, sigma_metrics
 
 
@@ -290,7 +354,38 @@ def transfer_learning(train_set, eval_set, test_set, model, parameters):
             model on the test_set (list of np.ndarray)
 
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+    input_shape = (224, 224, 3)
+    num_classes = 5
+    
+    base_model = model
+    base_model.trainable = False
+
+    inputs = keras.Input(shape=input_shape)
+    x = base_model(inputs, training=False)
+    x = keras.layers.GlobalAveragePooling2D()(x)
+    x = keras.layers.Dense(1024, activation='relu')(x)
+    outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = keras.Model(inputs, outputs)
+
+    opt = keras.optimizers.SGD(learning_rate=0.01,momentum=0.01,nesterov=True)
+    model.compile(optimizer=opt, loss=keras.losses.SparseCategoricalCrossentropy(
+        from_logits=False), metrics=['accuracy'])
+    
+    history = model.fit(train_set[0], train_set[1], epochs=5, validation_data=eval_set)
+
+    print(history.history)
+
+    predictions = model.predict(test_set[0])
+    predictions = np.array(list(prediction.argmax() for prediction in predictions))
+    ground_truth = test_set[1]
+
+    prec = precision(predictions, ground_truth)
+    rec = recall(predictions, ground_truth)
+    f_1 = f1(predictions, ground_truth)
+
+    metrics = [prec, rec, f_1]
+
     return model, metrics
     
 def accelerated_learning(train_set, eval_set, test_set, model, parameters):
@@ -315,18 +410,70 @@ def accelerated_learning(train_set, eval_set, test_set, model, parameters):
             model on the test_set (list of np.ndarray)
 
     '''
-    raise NotImplementedError
+    # raise NotImplementedError
+    input_shape = (224, 224, 3)
+    num_classes = 5
+    
+    base_model = model
+    base_model.trainable = False
+
+    inputs = keras.Input(shape=input_shape)
+    x = base_model(inputs, training=False)
+    x = keras.layers.GlobalAveragePooling2D()(x)
+    x = keras.layers.Dense(1024, activation='relu')(x)
+    outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = keras.Model(inputs, outputs)
+    model.compile(optimizer='adam', loss=keras.losses.SparseCategoricalCrossentropy(
+        from_logits=False), metrics=['accuracy'])
+    
+    model.fit(train_set[0], train_set[1], epochs=1)
+
+    predictions = model.predict(test_set[0])
+    predictions = np.array(list(prediction.argmax() for prediction in predictions))
+    ground_truth = test_set[1]
+
+    prec = precision(predictions, ground_truth)
+    rec = recall(predictions, ground_truth)
+    f_1 = f1(predictions, ground_truth)
+
+    metrics = [prec, rec, f_1]
+
     return model, metrics
 
 if __name__ == "__main__":
     
     model = load_model()
-    dataset = load_data()
-    train_eval_test = split_data()
+    dataset = load_data('small_flower_dataset')
+
+    train_eval_test = split_data(dataset[0], dataset[1], train_fraction=0.6,
+                                 randomize=True, eval_set=True)
     
-    model, metrics = transfer_learning()
-    
-    model, metrics = accelerated_learning()
+    parameters = [] ##
+    model, metrics = transfer_learning(train_eval_test[0],train_eval_test[1],train_eval_test[2], model,parameters)
+
+    # parameters = [] ##
+    # # model, metrics = accelerated_learning(train_eval_test[0],train_eval_test[1],train_eval_test[2], model,parameters)
+
+
+    model.summary()
+    print(metrics)
+
+    ############# confusion matrix #############
+    pred = model.predict(dataset[0])
+    pred = np.array(list(prediction.argmax() for prediction in pred))
+    grnd = dataset[1]
+    cm = confusion_matrix(pred, grnd, plot=True)
+    print(cm)
+
+    # print(precision(pred, grnd))
+    # print(recall(pred, grnd))
+    # print(f1(pred, grnd))
+
+    ################# k-fold validation #################
+    # print('starting k-fold validation')
+    # avg, sigma = k_fold_validation(dataset[0], dataset[1], model, k=3)
+    # print(avg)
+    # print(sigma)
     
     
 #########################  CODE GRAVEYARD  #############################

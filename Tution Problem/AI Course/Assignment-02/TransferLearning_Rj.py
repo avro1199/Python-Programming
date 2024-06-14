@@ -36,16 +36,7 @@ def load_model():
     '''
     # raise NotImplementedError-
 
-    model = ka.MobileNetV2(
-        input_shape=None,
-        alpha=1.0,
-        include_top=True,
-        weights='imagenet',
-        input_tensor=None,
-        pooling=None,
-        classes=1000,
-        classifier_activation='softmax'
-    )
+    model = ka.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
 
     return model
 
@@ -79,7 +70,8 @@ def load_data(path):
 
     data = np.array(data)
     labels = np.array(labels)
-    return data, labels, class_names
+
+    return (data, labels)
 
 
 def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
@@ -301,10 +293,13 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         ### YOUR CODE HERE###
         test_index = indices[partition_no*partition_size : (partition_no+1)*partition_size]
         # test_index = indices;
-        train_index = indices
+        train_index = np.array(list(index for index in indices if index not in test_index))
 
         print('indx => ', len(test_index))
         print('indx => ', len(train_index))
+
+        print(test_index)
+        print(train_index)
 
         train_features, test_features = features[train_index], features[test_index]
         train_classes, test_classes = ground_truth[train_index], ground_truth[test_index]
@@ -312,7 +307,7 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         # fit model to training data and perform predictions on the test set
         classifier.fit(train_features, train_classes)
         predictions = classifier.predict(test_features)
-        predictions = np.array(list(out.argmax() for out in predictions))
+        predictions = np.array(list(prediction.argmax() for prediction in predictions))
 
         # calculate performance metrics
         ### YOUR CODE HERE###
@@ -370,8 +365,8 @@ def transfer_learning():
     '''
     input_shape = (224, 224, 3)
     num_classes = 5
-    base_model = ka.MobileNetV2(
-        weights='imagenet', include_top=False, input_shape=input_shape)
+
+    base_model = load_model()
     base_model.trainable = False
 
     inputs = keras.Input(shape=input_shape)
@@ -419,16 +414,19 @@ if __name__ == "__main__":
     model = transfer_learning()
     # model.summary()  # new added
     # dataset = load_data('small_flower_dataset')
-    im, id, cl = load_data('small_flower_dataset')
+    im = load_data('small_flower_dataset')
 
-    # model.fit(im, id, epochs=1)  # training part ###############
+    print(im)
 
-    # #test-01
-    # output = model.predict(im)
-    # # print(out)
+
+    # model.fit(im[0], im[1], epochs=1)  # training part ###############
+
+    # # #test-01
+    # output = model.predict(im[0])
+    # # # print(out)
     # i = 0
     # for out in output:
-    #     print(i, out.argmax(), out.max(), cl[out.argmax()], sep='=>')
+    #     print(i, out.argmax(), out.max(), sep='=>')
     #     i += 1
 
     # test-02
@@ -450,7 +448,7 @@ if __name__ == "__main__":
     # plt.imshow(img)
     # plt.show()
 
-################## int code##################
+################## int code ##################
     # train_eval_test = split_data()
 
     # model, metrics = transfer_learning()
@@ -461,7 +459,7 @@ if __name__ == "__main__":
     # x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     # y = x * 100
 
-    # o = split_data(x, y, .5, randomize=True, eval_set=True)
+    # o = split_data(im[0], im[1], 0.6, randomize=True, eval_set=True)
     # print(o[0])
     # print(o[1])
     # print(o[2])
@@ -470,7 +468,7 @@ if __name__ == "__main__":
 
     # print(o)
     # predictions = np.array(list(out.argmax() for out in output))
-    # ground_truth = id
+    # ground_truth = im[1]
 
     # print(predictions)
     # print(ground_truth)
@@ -479,9 +477,9 @@ if __name__ == "__main__":
     # cm = confusion_matrix(predictions, ground_truth)
     # print("Confusion Matrix (without plot):\n", cm)
 
-    # print(len(cm))
+    # # print(len(cm))
 
-    # # Calculate and plot confusion matrix
+    # # # Calculate and plot confusion matrix
     # cm_plot = confusion_matrix(predictions, ground_truth, plot=True)
 
     # p = precision(predictions, ground_truth)
@@ -493,7 +491,7 @@ if __name__ == "__main__":
     # print(f)
 
     # k-fold test
-    out = k_fold_validation(im, id, model, 3)
+    out = k_fold_validation(im[0], im[1], model, 3)
     print('avg metrix:\n',out[0])
     print('sigma metrix:\n',out[1])
 
