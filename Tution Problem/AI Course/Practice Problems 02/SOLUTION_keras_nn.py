@@ -1,7 +1,7 @@
 # setup
 import numpy as np
 from tensorflow import keras
-from tensorflow.keras import layers # type: ignore
+from tensorflow.keras import layers  # type: ignore
 
 # prepare the data
 
@@ -16,9 +16,9 @@ input_shape = (28*28,)
 x_train = x_train.astype("float32") / 255
 x_test = x_test.astype("float32") / 255
 
-# Flatten the images to 1D vectors 
-x_train = x_train.reshape((x_train.shape[0],-1))
-x_test = x_test.reshape((x_test.shape[0],-1))
+# Flatten the images to 1D vectors
+x_train = x_train.reshape((x_train.shape[0], -1))
+x_test = x_test.reshape((x_test.shape[0], -1))
 
 print("x_train shape:", x_train.shape)
 print("x_test shape:", x_test.shape)
@@ -49,13 +49,14 @@ model.summary()
 batch_size = 128
 epochs = 15
 
-model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+model.compile(loss="categorical_crossentropy",
+              optimizer="adam", metrics=["accuracy"])
 
-model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
+model.fit(x_train, y_train, batch_size=batch_size,
+          epochs=epochs, validation_split=0.1)
 
 # Evaluate the trained model
 
 score = model.evaluate(x_test, y_test, verbose=0)
 print("Test loss:", score[0])
 print("Test accuracy:", score[1])
-

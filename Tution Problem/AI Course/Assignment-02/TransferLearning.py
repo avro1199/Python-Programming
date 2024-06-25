@@ -15,35 +15,38 @@ Hopefully without introducing new bugs.
 ### LIBRARY IMPORTS HERE ###
 import os
 import numpy as np
-import keras.applications as ka # type: ignore
+import keras.applications as ka  # type: ignore
 import keras
-    
+
+
 def my_team():
     '''
     Return the list of the team members of this assignment submission as a list
     of triplet of the form (student_number, first_name, last_name)
-    
+
     '''
     # raise NotImplementedError
-    return [(2020338038, 'Rj', 'Avro'),(2020338038, 'First', 'Avro')]
-    
+    return [(2020338038, 'Rj', 'Avro')]
+
+
 def load_model():
     '''
     Load in a model using the tf.keras.applications model and return it.
     As we want to use this model for transfer learning we don't need to include the top layer
     '''
     # raise NotImplementedError
-    model = ka.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
+    model = ka.MobileNetV2(
+        weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
     return model
-    
+
 
 def load_data(path):
     '''
     Load in the dataset from its home path. Path should be a string of the path
     to the home directory the dataset is found in. Should return a numpy array
     with paired images and class labels.
-    
+
     Insert a more detailed description here.
     '''
     # raise NotImplementedError
@@ -68,17 +71,17 @@ def load_data(path):
     labels = np.array(labels)
 
     return (data, labels)
-    
-    
+
+
 def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
     """
     Split the data into training and testing sets. If eval_set is True, also create
     an evaluation dataset. There should be two outputs if eval_set there should
     be three outputs (train, test, eval), otherwise two outputs (train, test).
-    
+
     To see what type train, test, and eval should be, refer to the inputs of 
     transfer_learning().
-    
+
     Insert a more detailed description here.
     """
     # raise NotImplementedError
@@ -106,8 +109,7 @@ def split_data(X, Y, train_fraction, randomize=False, eval_set=True):
         return (train_X, train_Y), (eval_X, eval_Y), (test_X, test_Y)
     else:
         return (train_X, train_Y), (eval_test_X, eval_test_Y)
-    
-    
+
 
 def confusion_matrix(predictions, ground_truth, plot=False, all_classes=None):
     '''
@@ -128,43 +130,45 @@ def confusion_matrix(predictions, ground_truth, plot=False, all_classes=None):
     Outputs:
         - cm: type np.ndarray of shape (c,c) where c is the number of unique  
               classes in the ground_truth
-              
+
               Each row corresponds to a unique class in the ground truth and
               each column to a prediction of a unique class by a classifier
     '''
-    
+
     # raise NotImplementedError
     if all_classes is None:
         all_classes = np.unique(ground_truth)
-    
+
     cm = np.zeros((len(all_classes), len(all_classes)), dtype=int)
-    
+
     class_to_index = {cls: idx for idx, cls in enumerate(all_classes)}
-    
+
     for true, pred in zip(ground_truth, predictions):
         cm[class_to_index[true], class_to_index[pred]] += 1
-    
+
     if plot:
         try:
             import matplotlib.pyplot as plt
             import seaborn as sns
-            
+
             plt.figure(figsize=(10, 7))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=all_classes, yticklabels=all_classes)
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                        xticklabels=all_classes, yticklabels=all_classes)
             plt.ylabel('True Class')
             plt.xlabel('Predicted Class')
             plt.title('Confusion Matrix')
             plt.show()
         except ImportError:
-            print("Plotting is disabled. Install matplotlib and seaborn to enable plotting.")
+            print(
+                "Plotting is disabled. Install matplotlib and seaborn to enable plotting.")
 
     return cm
-    
+
 
 def precision(predictions, ground_truth):
     '''
     Similar to the confusion matrix, now calculate the classifier's precision
-    
+
     Inputs: see confusion_matrix above
     Outputs:
         - precision: type np.ndarray of length c,
@@ -175,28 +179,29 @@ def precision(predictions, ground_truth):
     # Determine the number of classes
     classes = np.unique(ground_truth)
     num_classes = len(classes)
-    
+
     # Initialize true positives (TP) and false positives (FP) arrays
     TP = np.zeros(num_classes)
     FP = np.zeros(num_classes)
-    
+
     # Calculate TP and FP for each class
     for i, cls in enumerate(classes):
         TP[i] = np.sum((predictions == cls) & (ground_truth == cls))
         FP[i] = np.sum((predictions == cls) & (ground_truth != cls))
-    
+
     # Calculate precision for each class
     precision = TP / (TP + FP)
-    
+
     # Handle cases where TP + FP is 0 to avoid division by zero
     precision = np.nan_to_num(precision, nan=0.0)
 
     return precision
 
+
 def recall(predictions, ground_truth):
     '''
     Similar to the confusion matrix, now calculate the classifier's recall
-    
+
     Inputs: see confusion_matrix above
     Outputs:
         - recall: type np.ndarray of length c,
@@ -207,23 +212,24 @@ def recall(predictions, ground_truth):
     # Determine the number of classes
     classes = np.unique(ground_truth)
     num_classes = len(classes)
-    
+
     # Initialize true positives (TP) and false negatives (FN) arrays
     TP = np.zeros(num_classes)
     FN = np.zeros(num_classes)
-    
+
     # Calculate TP and FN for each class
     for i, cls in enumerate(classes):
         TP[i] = np.sum((predictions == cls) & (ground_truth == cls))
         FN[i] = np.sum((predictions != cls) & (ground_truth == cls))
-    
+
     # Calculate recall for each class
     recall = TP / (TP + FN)
-    
+
     # Handle cases where TP + FN is 0 to avoid division by zero
     recall = np.nan_to_num(recall, nan=0.0)
 
     return recall
+
 
 def f1(predictions, ground_truth):
     '''
@@ -233,20 +239,21 @@ def f1(predictions, ground_truth):
     Outputs:
         - f1: type nd.ndarry of length c where c is the number of classes
     '''
-    
+
     # raise NotImplementedError
 
     # Calculate precision and recall
     prec = precision(predictions, ground_truth)
     rec = recall(predictions, ground_truth)
-    
+
     # Calculate F1 score for each class
     f1 = 2 * (prec * rec) / (prec + rec)
-    
+
     # Handle cases where precision + recall is 0 to avoid division by zero
     f1 = np.nan_to_num(f1, nan=0.0)
-   
+
     return f1
+
 
 def k_fold_validation(features, ground_truth, classifier, k=2):
     '''
@@ -267,7 +274,7 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         - sigma_metrics: np.ndarray, each value is the standard deviation of 
         the performance metrics [precision, recall, f1_score]
     '''
-    
+
     # split data
     ### YOUR CODE HERE ###
     indices = np.random.permutation(len(features))
@@ -279,16 +286,18 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
     f1_scores = []
 
     model = classifier
-        
+
     # go through each partition and use it as a test set.
     for partition_no in range(k):
         # determine test and train sets
         ### YOUR CODE HERE###
 
-        classifier = model #each time a new classifier that is not previously trained
+        classifier = model  # each time a new classifier that is not previously trained
 
-        test_index = indices[partition_no*partition_size : (partition_no+1)*partition_size]
-        train_index = np.array(list(index for index in indices if index not in test_index))
+        test_index = indices[partition_no *
+                             partition_size: (partition_no+1)*partition_size]
+        train_index = np.array(
+            list(index for index in indices if index not in test_index))
 
         print('Test => ', len(test_index))
         print('Train => ', len(train_index))
@@ -299,7 +308,8 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         # fit model to training data and perform predictions on the test set
         classifier.fit(train_features, train_classes)
         predictions = classifier.predict(test_features)
-        predictions = np.array(list(prediction.argmax() for prediction in predictions))
+        predictions = np.array(list(prediction.argmax()
+                               for prediction in predictions))
 
         # calculate performance metrics
         ### YOUR CODE HERE###
@@ -311,7 +321,6 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
         # print(precision_values)
         recall_scores.append(recall_values)
         f1_scores.append(f1_values)
-
 
     # perform statistical analyses on metrics
     ### YOUR CODE HERE###
@@ -360,57 +369,64 @@ def transfer_learning(train_set, eval_set, test_set, model, parameters):
 
     train_X, train_Y = train_set
     test_X, test_Y = test_set
-    
-    #base model without top layer
+
+    # base model without top layer
     base_model = model
     base_model.trainable = False
 
-    #building a new model using base model for transfer learning
+    # building a new model using base model for transfer learning
     inputs = keras.Input(shape=input_shape)
     x = base_model(inputs, training=False)
     x = keras.layers.GlobalAveragePooling2D()(x)
     x = keras.layers.Dense(1024, activation='relu')(x)
     outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
-    model = keras.Model(inputs, outputs)
+    model = keras.Model(inputs, outputs, name='ImageClassifier')
 
-    #optimization settings
-    learning_rate,momentum,nesterov = parameters
+    # optimization settings
+    learning_rate, momentum, nesterov = parameters
     optmizer = keras.optimizers.SGD(learning_rate, momentum, nesterov)
     model.compile(optimizer=optmizer, loss=keras.losses.SparseCategoricalCrossentropy(
         from_logits=False), metrics=['accuracy'])
     
-    #training on train_set with validation by eval_set
-    history = model.fit(train_X, train_Y, epochs=5, validation_data=eval_set)
+    model.summary()
 
-    # print(history.history)
+    # training on train_set with validation by eval_set
+    history = model.fit(train_X, train_Y, epochs=10, validation_data=eval_set)
 
-    #accuracy and loss during training
+    ################ accuracy and loss during training ################
+
     #all plotting codes
-    # import matplotlib.pyplot as plt
-    # # summarize history for accuracy
-    # plt.plot(history.history['accuracy'])
-    # plt.plot(history.history['val_accuracy'])
-    # plt.title('model accuracy')
-    # plt.ylabel('accuracy')
-    # plt.xlabel('epoch')
-    # plt.ylim((0, 1))
-    # plt.legend(['Train', 'Validation'], loc='upper left')
-    # plt.show()
-    # # summarize history for loss
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['val_loss'])
-    # plt.title('model loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['Train', 'Validation'], loc='upper left')
-    # plt.show()
+    if False:
+        import matplotlib.pyplot as plt
+        # summarize history for accuracy
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.ylim((0, 1))
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.show()
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.show()
 
-    #testing the model on test_set
+    # testing the model on test_set
     predictions = model.predict(test_X)
-    predictions = np.array(list(prediction.argmax() for prediction in predictions))
+    predictions = np.array(list(prediction.argmax()
+                           for prediction in predictions))
     ground_truth = test_Y
 
-    #calculating classwise precision, recall and f1 score
+    # confusion matrix
+    cm = confusion_matrix(predictions, ground_truth, plot=True)
+    print(cm)
+
+    # calculating classwise precision, recall and f1 score
     prec = precision(predictions, ground_truth)
     rec = recall(predictions, ground_truth)
     f_1 = f1(predictions, ground_truth)
@@ -418,7 +434,8 @@ def transfer_learning(train_set, eval_set, test_set, model, parameters):
     metrics = [prec, rec, f_1]
 
     return model, metrics
-    
+
+
 def accelerated_learning(train_set, eval_set, test_set, model, parameters):
     '''
     Implement and perform accelerated transfer learning here.
@@ -442,60 +459,89 @@ def accelerated_learning(train_set, eval_set, test_set, model, parameters):
 
     '''
     # raise NotImplementedError
-    input_shape = (224, 224, 3)
     num_classes = 5
 
     train_X, train_Y = train_set
+    eval_X, eval_Y = eval_set
     test_X, test_Y = test_set
-    
-    #base model without top layer
+
+    # base model without top layer
     base_model = model
     base_model.trainable = False
 
-    #building a new model using base model for transfer learning
-    inputs = keras.Input(shape=input_shape)
-    x = base_model(inputs, training=False)
-    x = keras.layers.GlobalAveragePooling2D()(x)
-    x = keras.layers.Dense(1024, activation='relu')(x)
-    outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
-    model = keras.Model(inputs, outputs)
+    #extracting features using the base_model
+    train_features = base_model.predict(train_X)
+    eval_features = base_model.predict(eval_X)
+    print('train_shape => ',train_features.shape, '\n eval_shape => ', eval_features.shape)
+
+    # new model which will take features as input
+    new_model = keras.Sequential(
+        [
+            keras.layers.GlobalAveragePooling2D(),
+            keras.layers.Dense(1024, activation='relu'),
+            keras.layers.Dense(num_classes, activation='softmax')
+        ],
+        name='FeatureClassifier'
+    )
 
     #optimization settings
     learning_rate,momentum,nesterov = parameters
     optmizer = keras.optimizers.SGD(learning_rate, momentum, nesterov)
-    model.compile(optimizer=optmizer, loss=keras.losses.SparseCategoricalCrossentropy(
+
+    new_model.compile(optimizer=optmizer, loss=keras.losses.SparseCategoricalCrossentropy(
         from_logits=False), metrics=['accuracy'])
     
-    #training on train_set with validation by eval_set
-    history = model.fit(train_X, train_Y, epochs=5, validation_data=eval_set)
+    # training on train_set with validation by eval_set
+    history = new_model.fit(train_features, train_Y, epochs=10, validation_data=(eval_features, eval_Y))
 
-    # print(history.history)
+    ################ accuracy and loss during training ################
 
-    #accuracy and loss during training
-    # #all plotting codes
-    # import matplotlib.pyplot as plt
-    # # summarize history for accuracy
-    # plt.plot(history.history['accuracy'])
-    # plt.plot(history.history['val_accuracy'])
-    # plt.title('model accuracy')
-    # plt.ylabel('accuracy')
-    # plt.xlabel('epoch')
-    # plt.ylim((0, 1))
-    # plt.legend(['Train', 'Validation'], loc='upper left')
-    # plt.show()
-    # # summarize history for loss
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['val_loss'])
-    # plt.title('model loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['Train', 'Validation'], loc='upper left')
-    # plt.show()
+    #all plotting codes
+    if False:
+        import matplotlib.pyplot as plt
+        # summarize history for accuracy
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.ylim((0, 1))
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.show()
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['Train', 'Validation'], loc='upper left')
+        plt.show()
+    
+    new_model.summary()
 
-    #testing the model on test_set
-    predictions = model.predict(test_X)
+    ############################# Building the final model #############################
+
+    # Use the output of the base_model as the input to the new_model(FeatureClassifier)
+    combined_output = new_model(base_model.output)
+
+    # Create the final model
+    final_model = keras.Model(inputs=base_model.input, outputs=combined_output, name='FinalModel')
+
+    # Compile the final model
+    final_model.compile(optimizer=optmizer, loss=keras.losses.SparseCategoricalCrossentropy(
+        from_logits=False), metrics=['accuracy'])
+
+    # Summary of the final model
+    final_model.summary()
+
+    #testing the final_model on test_set
+    predictions = final_model.predict(test_X)
     predictions = np.array(list(prediction.argmax() for prediction in predictions))
     ground_truth = test_Y
+
+    #confusion matrix
+    cm = confusion_matrix(predictions, ground_truth, plot=True)
+    print(cm)
 
     #calculating classwise precision, recall and f1 score
     prec = precision(predictions, ground_truth)
@@ -504,21 +550,23 @@ def accelerated_learning(train_set, eval_set, test_set, model, parameters):
 
     metrics = [prec, rec, f_1]
 
-    return model, metrics
+    return final_model, metrics
+
 
 if __name__ == "__main__":
-    
+
     model = load_model()
     dataset = load_data('small_flower_dataset')
 
     train_eval_test = split_data(dataset[0], dataset[1], train_fraction=0.6,
                                  randomize=True, eval_set=True)
-    
-    parameters = (0.01, 0.0, False) #(learning_rate, momentum, nesterov)
-    model, metrics = transfer_learning(train_eval_test[0],train_eval_test[1],train_eval_test[2], model,parameters)
 
-    # parameters = (0.1, 0.0, False)
-    # # model, metrics = accelerated_learning(train_eval_test[0],train_eval_test[1],train_eval_test[2], model,parameters)
+    # parameters = (0.01, 0.0, False)  # (learning_rate, momentum, nesterov)
+    # model, metrics = transfer_learning(
+    #     train_eval_test[0], train_eval_test[1], train_eval_test[2], model, parameters)
+
+    parameters = (0.01, 0.0, False)
+    model, metrics = accelerated_learning(train_eval_test[0],train_eval_test[1],train_eval_test[2], model,parameters)
 
     ########################################################################################################################
     # model.summary()
@@ -527,11 +575,11 @@ if __name__ == "__main__":
     print('f1', metrics[2], sep=' => ')
 
     ############# confusion matrix #############
-    pred = model.predict(dataset[0])
-    pred = np.array(list(prediction.argmax() for prediction in pred))
-    grnd = dataset[1]
-    cm = confusion_matrix(pred, grnd, plot=True)
-    print(cm)
+    # pred = model.predict(dataset[0])
+    # pred = np.array(list(prediction.argmax() for prediction in pred))
+    # grnd = dataset[1]
+    # cm = confusion_matrix(pred, grnd, plot=True)
+    # print(cm)
 
     # print(precision(pred, grnd))
     # print(recall(pred, grnd))
@@ -542,6 +590,6 @@ if __name__ == "__main__":
     # avg, sigma = k_fold_validation(dataset[0], dataset[1], model, k=7)
     # print(avg)
     # print(sigma)
-    
-    
+
+
 #########################  CODE GRAVEYARD  #############################
