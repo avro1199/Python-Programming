@@ -23,7 +23,6 @@ def my_team():
     '''
     Return the list of the team members of this assignment submission as a list
     of triplet of the form (student_number, first_name, last_name)
-
     '''
     # raise NotImplementedError
     return [(2020338038, 'Rj', 'Avro')]
@@ -296,6 +295,7 @@ def k_fold_validation(features, ground_truth, classifier, k=2):
 
         test_index = indices[partition_no *
                              partition_size: (partition_no+1)*partition_size]
+        
         train_index = np.array(
             list(index for index in indices if index not in test_index))
 
