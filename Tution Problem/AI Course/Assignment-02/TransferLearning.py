@@ -533,6 +533,9 @@ def accelerated_learning(train_set, eval_set, test_set, model, parameters):
 
     # Summary of the final model
     final_model.summary()
+    base_model.trainable = True ## fine tuning starts here
+    final_model.optimizer = keras.optimizers.SGD(learning_rate, momentum, nesterov)
+    final_model.summary()
 
     #testing the final_model on test_set
     predictions = final_model.predict(test_X)
@@ -540,8 +543,8 @@ def accelerated_learning(train_set, eval_set, test_set, model, parameters):
     ground_truth = test_Y
 
     #confusion matrix
-    cm = confusion_matrix(predictions, ground_truth, plot=True)
-    print(cm)
+    # cm = confusion_matrix(predictions, ground_truth, plot=True)
+    # print(cm)
 
     #calculating classwise precision, recall and f1 score
     prec = precision(predictions, ground_truth)
@@ -574,12 +577,15 @@ if __name__ == "__main__":
     print('rec', metrics[1], sep=' => ')
     print('f1', metrics[2], sep=' => ')
 
+    model.summary()
+    model.fit(dataset[0], dataset[1], epochs=1)
+
     ############# confusion matrix #############
-    # pred = model.predict(dataset[0])
-    # pred = np.array(list(prediction.argmax() for prediction in pred))
-    # grnd = dataset[1]
-    # cm = confusion_matrix(pred, grnd, plot=True)
-    # print(cm)
+    pred = model.predict(dataset[0])
+    pred = np.array(list(prediction.argmax() for prediction in pred))
+    grnd = dataset[1]
+    cm = confusion_matrix(pred, grnd, plot=True)
+    print(cm)
 
     # print(precision(pred, grnd))
     # print(recall(pred, grnd))
