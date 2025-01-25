@@ -68,7 +68,7 @@ if __name__ == "__main__":
     from scipy.io import wavfile
 
     # Load an example audio file
-    fs, signal = wavfile.read("example2.wav")
+    fs, signal = wavfile.read("pure_tone.wav")
     if signal.ndim > 1:  # Convert to mono if stereo
         signal = np.mean(signal, axis=1)
 
