@@ -419,10 +419,10 @@ if __name__ == "__main__":
     print(im)
 
 
-    # model.fit(im[0], im[1], epochs=1)  # training part ###############
+    model.fit(im[0], im[1], epochs=1)  # training part ###############
 
     # # #test-01
-    # output = model.predict(im[0])
+    output = model.predict(im[0])
     # # # print(out)
     # i = 0
     # for out in output:
@@ -467,8 +467,8 @@ if __name__ == "__main__":
     # print(type(o[1][1]))
 
     # print(o)
-    # predictions = np.array(list(out.argmax() for out in output))
-    # ground_truth = im[1]
+    predictions = np.array(list(out.argmax() for out in output))
+    ground_truth = im[1]
 
     # print(predictions)
     # print(ground_truth)
@@ -479,8 +479,8 @@ if __name__ == "__main__":
 
     # # print(len(cm))
 
-    # # # Calculate and plot confusion matrix
-    # cm_plot = confusion_matrix(predictions, ground_truth, plot=True)
+    # # Calculate and plot confusion matrix
+    cm_plot = confusion_matrix(predictions, ground_truth, plot=True)
 
     # p = precision(predictions, ground_truth)
     # r = recall(predictions, ground_truth)
@@ -491,8 +491,8 @@ if __name__ == "__main__":
     # print(f)
 
     # k-fold test
-    out = k_fold_validation(im[0], im[1], model, 3)
-    print('avg metrix:\n',out[0])
-    print('sigma metrix:\n',out[1])
+    # out = k_fold_validation(im[0], im[1], model, 3)
+    # print('avg metrix:\n',out[0])
+    # print('sigma metrix:\n',out[1])
 
 #########################  CODE GRAVEYARD  #############################
